@@ -24,7 +24,7 @@ foreach(k,v in COMBATTANK_VALUES_TABLE)
 		ROOT[k] <- v
 
 PrecacheSound(COMBATTANK_SND_ROTATE)
-::COMBATTANK_MODEL_INDEX <- PrecacheModel(COMBATTANK_MODEL)
+PrecacheModel(COMBATTANK_MODEL)
 
 ::CombatTankWeapons <- {}
 
@@ -49,9 +49,9 @@ function TankExt::CombatTankRefreshSkin(hTank)
 	for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
 		if(HasProp(hChild, "m_nSkin")) hChild.SetSkin(iSkinWeapon)
 	
-	if(hTank_scope.hBeam && hTank_scope.hBeam.IsValid())
+	if(TankExt.ExistsInScope(hTank_scope, "hBeam"))
 		TankExt.SetEntityColor(hTank_scope.hBeam, bBlueTeam ? 0 : 255, 0, bBlueTeam ? 255 : 0, 255)
-	if(hTank_scope.hBeamEnd && hTank_scope.hBeamEnd.IsValid())
+	if(TankExt.ExistsInScope(hTank_scope, "hBeamEnd"))
 		TankExt.SetEntityColor(hTank_scope.hBeamEnd, bBlueTeam ? 0 : 255, 0, bBlueTeam ? 255 : 0, 255)
 }
 function TankExt::CombatTankPlaySound(SoundTable, bLooping = false)
@@ -109,34 +109,32 @@ TankExt.NewTankScript("combattank*", {
 		hTank_scope.bMovingLast <- false
 		hTank_scope.bUbered <- false
 
-		local iSequence = hTank.GetSequence()
-		hTank.SetModel(COMBATTANK_MODEL)
-		SetPropInt(hTank, "m_nModelIndex", COMBATTANK_MODEL_INDEX)
-		for(local i = 0; i <= 3; i++)
-			SetPropIntArray(hTank, "m_nModelIndexOverrides", COMBATTANK_MODEL_INDEX, i)
-		hTank.SetSequence(iSequence)
-	
-		local iTankIndex = hTank.entindex()
-		local sLaserStart = "laserstart_" + iTankIndex
-		local sLaserEnd = "laserend_" + iTankIndex
-		local hBeamEnd = SpawnEntityFromTable("env_sprite", { targetname = sLaserEnd, model = "sprites/glow1.vmt", spawnflags = 1, rendermode = 5 })
-		SetPropBool(hBeamEnd, "m_bForcePurgeFixedupStrings", true)
-		local hBeam = SpawnEntityFromTable("env_beam", { targetname = sLaserStart, lightningstart = sLaserStart, lightningend = sLaserEnd, boltwidth = 0.75, spawnflags = 1, texture = "sprites/laserbeam.vmt" })
-		SetPropBool(hBeam, "m_bForcePurgeFixedupStrings", true)
-		hTank_scope.hBeam <- hBeam
-		hTank_scope.hBeamEnd <- hBeamEnd
+		TankExt.SetTankModel(hTank, COMBATTANK_MODEL)
 
-		local Params = split(sName, "|")
-		if(Params.len() == 3)
+		local sParams = split(sName, "|")
+		if(sParams.len() == 3)
 		{
-			hTank.KeyValueFromString("targetname", Params[0])
-			if(Params[0].find("_red"))
+			hTank.KeyValueFromString("targetname", sParams[0])
+			if(sParams[0].find("_red"))
 				hTank.SetTeam(2)
+			
+			if(sParams[0].find("_nolaser") == null)
+			{
+				local iTankIndex = hTank.entindex()
+				local sLaserStart = "laserstart_" + iTankIndex
+				local sLaserEnd = "laserend_" + iTankIndex
+				local hBeamEnd = SpawnEntityFromTable("env_sprite", { targetname = sLaserEnd, model = "sprites/glow1.vmt", spawnflags = 1, rendermode = 5 })
+				SetPropBool(hBeamEnd, "m_bForcePurgeFixedupStrings", true)
+				local hBeam = SpawnEntityFromTable("env_beam", { targetname = sLaserStart, lightningstart = sLaserStart, lightningend = sLaserEnd, boltwidth = 0.75, spawnflags = 1, texture = "sprites/laserbeam.vmt" })
+				SetPropBool(hBeam, "m_bForcePurgeFixedupStrings", true)
+				hTank_scope.hBeam <- hBeam
+				hTank_scope.hBeamEnd <- hBeamEnd
+			}
 
 			for(local i = 1; i <= 2; i++)
-				if(Params[i] in CombatTankWeapons)
+				if(sParams[i] in CombatTankWeapons)
 				{
-					local WeaponTable = CombatTankWeapons[Params[i]]
+					local WeaponTable = CombatTankWeapons[sParams[i]]
 					local hWeapon
 					if("Spawn" in WeaponTable)
 					{
@@ -149,7 +147,7 @@ TankExt.NewTankScript("combattank*", {
 		}
 		else
 		{
-			ClientPrint(null, 3, format("\x07ffb2b2[ERROR] Wrong number of CombatTank parameters (%i passed, 3 required)", Params.len()))
+			ClientPrint(null, 3, format("\x07ffb2b2[ERROR] Wrong number of CombatTank parameters (%i passed, 3 required)", sParams.len()))
 			return
 		}
 		
@@ -187,14 +185,7 @@ TankExt.NewTankScript("combattank*", {
 		hTank_scope.Think <- function()
 		{
 			if(self.GetModelName() != COMBATTANK_MODEL)
-			{
-				local iSequence = self.GetSequence()
-				self.SetModel(COMBATTANK_MODEL)
-				SetPropInt(self, "m_nModelIndex", COMBATTANK_MODEL_INDEX)
-				for(local i = 0; i <= 3; i++)
-					SetPropIntArray(self, "m_nModelIndexOverrides", COMBATTANK_MODEL_INDEX, i)
-				self.SetSequence(iSequence)
-			}
+				TankExt.SetTankModel(hTank, COMBATTANK_MODEL)
 			
 			local iTeamNum = self.GetTeam()
 			if(iTeamNum != iTeamNumLast)
@@ -210,19 +201,22 @@ TankExt.NewTankScript("combattank*", {
 			local angRotation = self.GetAbsAngles()
 			vecMount = self.GetOrigin() + RotatePosition(Vector(), angRotation, COMBATTANK_MOUNT_ORIGIN_OFFSET)
 
-			local iLaser = self.LookupAttachment("laser_origin")
-			local vecLaser = self.GetAttachmentOrigin(iLaser)
-			local angLaser = self.GetAttachmentAngles(iLaser)
-			local Trace = {
-				start = vecLaser
-				end = vecLaser + angLaser.Forward() * 8192
-				ignore = hTank
-				mask = MASK_SHOT
-			}
-			if(TraceLineEx(Trace))
+			if("hBeam" in this)
 			{
-				hBeam.SetAbsOrigin(vecLaser)
-				hBeamEnd.SetAbsOrigin(Trace.endpos)
+				local iLaser = self.LookupAttachment("laser_origin")
+				local vecLaser = self.GetAttachmentOrigin(iLaser)
+				local angLaser = self.GetAttachmentAngles(iLaser)
+				local Trace = {
+					start = vecLaser
+					end = vecLaser + angLaser.Forward() * 8192
+					ignore = hTank
+					mask = MASK_SHOT
+				}
+				if(TraceLineEx(Trace))
+				{
+					hBeam.SetAbsOrigin(vecLaser)
+					hBeamEnd.SetAbsOrigin(Trace.endpos)
+				}
 			}
 
 			foreach(sName, SoundTable in SoundQueue)
@@ -395,7 +389,7 @@ TankExt.NewTankScript("combattank*", {
 				filter_type = RECIPIENT_FILTER_GLOBAL
 				flags = SND_STOP
 			})
-		if(hBeam && hBeam.IsValid()) hBeam.Destroy()
-		if(hBeamEnd && hBeamEnd.IsValid()) hBeamEnd.Destroy()
+		if(TankExt.ExistsInScope(this, "hBeam")) hBeam.Destroy()
+		if(TankExt.ExistsInScope(this, "hBeamEnd")) hBeamEnd.Destroy()
 	}
 })

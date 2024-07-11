@@ -166,7 +166,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			local hPath2 = SpawnEntityFromTable("path_track", {
 				origin = OriginArray[1]
 				targetname = format("%s_2", sPathName)
-				vscripts = "tankextensions/loopingpath_think"
+				vscripts = "tankextensions/misc/loopingpath_think"
 			})
 			local hPath3 = SpawnEntityFromTable("path_track", {
 				targetname = format("%s_3", sPathName)
@@ -236,7 +236,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 	}
 	RunTankScript = function()
 	{
-		if(!("self" in this) || self.GetEFlags() & EFL_NO_MEGAPHYSCANNON_RAGDOLL) return
+		if(!("self" in this) || self.GetEFlags() & EFL_NO_MEGAPHYSCANNON_RAGDOLL || self.GetClassname() != "tank_boss") return
 		local hPath = caller
 		local hTank = self
 		local sTankName = hTank.GetName().tolower()
@@ -322,7 +322,9 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		{
 			SetPropEntity(hChild, "m_hMovePeer", hParent.FirstMoveChild())
 			SetPropEntity(hParent, "m_hMoveChild", hChild)
+			SetPropEntity(hChild, "m_pParent", hParent)
 			SetPropEntity(hChild, "m_hMoveParent", hParent)
+			SetPropEntity(hChild, "m_Network.m_hParent", hParent)
 			if(sAttachment)
 				SetPropInt(hChild, "m_iParentAttachment", iAttachment)
 		}
@@ -361,6 +363,16 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 	{
 		local color = (r) | (g << 8) | (b << 16) | (a << 24);
 		NetProps.SetPropInt(entity, "m_clrRender", color);
+	}
+	SetTankModel = function(hTank, sModel)
+	{
+		local iModelIndex = PrecacheModel(sModel)
+		local iSequence = hTank.GetSequence()
+		hTank.SetModel(sModel)
+		SetPropInt(hTank, "m_nModelIndex", iModelIndex)
+		for(local i = 0; i <= 3; i++)
+			SetPropIntArray(hTank, "m_nModelIndexOverrides", iModelIndex, i)
+		hTank.SetSequence(iSequence)
 	}
 	PathMaker = function(hPlayer)
 	{
@@ -490,6 +502,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 								array[1].Destroy()
 	
 					delete hPlayer_scope.PathMakerThink
+					Convars.SetValue("sig_etc_path_track_is_server_entity", 1)
 				}
 	
 				if(iButtonsPressed & IN_ATTACK)
@@ -661,5 +674,5 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		}
 		AddThinkToEnt(hPlayer, "PathMakerThink")
 	}
-	ExistsInScope = @(scope, string) string in scope && (typeof(scope[string]) == "instance" || typeof(scope[string]) == "null" ? (scope[string] != null && scope[string].IsValid()) : true)
+	ExistsInScope = @(scope, string) string in scope && (typeof(scope[string]) == "instance" && typeof(scope[string]) != "null" ? scope[string].IsValid() : true)
 }

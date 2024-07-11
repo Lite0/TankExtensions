@@ -48,7 +48,7 @@ function Respawn()
 	local hPath = SpawnEntityFromTable("path_track", {
 		origin = OriginArray[1]
 		targetname = format("%s_2", sPathName)
-		vscripts = "tankextensions/loopingpath_think"
+		vscripts = "tankextensions/misc/loopingpath_think"
 	})
 	SetPropBool(hPath, "m_bForcePurgeFixedupStrings", true)
 
