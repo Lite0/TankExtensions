@@ -86,7 +86,7 @@ TankExt.NewTankScript("stickytank", {
 			}
 			return -1
 		}
-		AddThinkToEnt(hTank, "Think")
+		TankExt.AddThinkToEnt(hTank, "Think")
 	}
 	OnDeath = function()
 	{

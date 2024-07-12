@@ -206,7 +206,7 @@ CombatTankWeapons.minigun <- {
 			}) : null
 			return -1
 		}
-		AddThinkToEnt(hMinigun, "Think")
+		TankExt.AddThinkToEnt(hMinigun, "Think")
 		return hMinigun
 	}
 }

@@ -49,7 +49,7 @@ TankExt.NewTankScript("fireringtank", {
 			}
 			return -1
 		}
-		AddThinkToEnt(hTank, "Think")
+		TankExt.AddThinkToEnt(hTank, "Think")
 		TankExt.SetParentArray([hTank_scope.hIgniter], hTank)
 	}
 	OnDeath = function()

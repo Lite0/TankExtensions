@@ -71,6 +71,6 @@ TankExt.NewTankScript("ubertank*", {
 			}
 			return -1
 		}
-		AddThinkToEnt(hTank, "Think")
+		TankExt.AddThinkToEnt(hTank, "Think")
 	}
 })

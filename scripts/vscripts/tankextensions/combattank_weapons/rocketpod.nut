@@ -123,7 +123,7 @@ CombatTankWeapons.rocketpod <- {
 							HomingThink.call(this)
 						return -1
 					}
-					AddThinkToEnt(hRocket, "RocketThink")
+					TankExt.AddThinkToEnt(hRocket, "RocketThink")
 
 					if(bHoming)
 					{
@@ -209,7 +209,7 @@ CombatTankWeapons.rocketpod <- {
 			}
 			return -1
 		}
-		AddThinkToEnt(hRocketPod, "Think")
+		TankExt.AddThinkToEnt(hRocketPod, "Think")
 		return hRocketPod
 	}
 }

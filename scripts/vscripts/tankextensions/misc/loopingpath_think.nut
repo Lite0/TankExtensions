@@ -57,7 +57,7 @@ function Respawn()
 	hPath_scope.sPathName <- sPathName
 	hPath_scope.iArrayLength <- iArrayLength
 	hPath_scope.iLoopStart <- iLoopStart
-	AddThinkToEnt(hPath, "PathThink")
+	TankExt.AddThinkToEnt(hPath, "PathThink")
 
 	TankExt.SetPathConnection(FindByName(null, format("%s_1", sPathName)), hPath)
 	TankExt.SetPathConnection(hPath, FindByName(null, format("%s_3", sPathName)))

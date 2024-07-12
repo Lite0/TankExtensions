@@ -75,6 +75,6 @@ TankExt.NewTankScript("tankdozer", {
 			bHasSapperLast = bHasSapper
 			return -1
 		}
-		AddThinkToEnt(hSentry, "Think")
+		TankExt.AddThinkToEnt(hSentry, "Think")
 	}
 })

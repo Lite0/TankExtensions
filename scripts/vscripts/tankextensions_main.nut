@@ -11,29 +11,9 @@
 // void TankExt.CreatePaths(table)   // uses a table with strings and arrays to create multiple paths
 //                                   // can merge into existing paths if the endpoint overlaps with a map's path_track
 //                                   // starting path entities will have "_1" appended to their name
-// TankExt.CreatePaths({
-//     tank_left = [
-//         Vector(-1920, 512, -64)
-//         Vector(-1216, 512, -64)
-//         Vector(-1088, 448, -64)
-//     ]
-//     tank_right = [
-//         Vector(-1920, -512, -64)
-//         Vector(-1216, -512, -64)
-//         Vector(-1088, -448, -64)
-//     ]
-// })
 
 // void TankExt.CreateLoopPaths(table)   // the same as CreatePaths except paths will loop into itself
 //                                       // end path Vector must be the same as another within the path and the tank must spawn on the first node
-// TankExt.CreateLoopPaths({
-//     tank_loop = [
-//         Vector(-1024, 512, -64)
-//         Vector(-512, 512, -64)
-//         Vector(-512, 1024, -64)
-//         Vector(-1024, 512, -64)
-//     ]
-// })
 
 // void TankExt.StartingPathNames(array)   // array of strings that include the targetnames of all starting paths, or any path node a tank can spawn on
 
@@ -45,14 +25,11 @@
 
 // void TankExt.PathMaker(player)   // tool for creating tank paths ingame and prints them to console
 
+// void TankExt.SetTankModel(handle tank, string modelmain, string trackmodel = null, string bombmodel = null)   // sets the tank's models including itself and its accessories
+
 // void TankExt.SetPathConnection(handle path1, handle path2, handle pathalt = null)   // connects paths from one to another
 
 // void TankExt.SetValueOverrides(table)   // overrides variables set inside tank script files, can be used before or after adding tank scripts
-// TankExt.SetValueOverrides({
-//     COMBATTANK_MAX_RANGE = 2200
-//     COMBATTANK_ROCKETPOD_ROCKET_SPEED = 1200
-//     COMBATTANK_MINIGUN_BULLET_DAMAGE = 22
-// })
 
 // void TankExt.SetDestroyCallback(handle entity, function)   // used for OnDeath, copied from script examples
 
@@ -63,6 +40,8 @@
 // integer/float TankExt.SetEntityColor(handle entity, int r, int g, int b, int a)   // sets entity color similar to a Color input
 
 // integer/float TankExt.Clamp(value, min, max)   // inputted value cannot go below min or above max
+
+// void TankExt.AddThinkToEnt(handle tank, string function)   // wrapper for AddThinkToEnt to allow usage with PopExt+
 
 // bool TankExt.ExistsInScope(scope, string)   // checks if a string exists inside a script scope, if it finds an instance then it checks if its valid and not null
 
@@ -179,7 +158,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			hPath_scope.iArrayLength <- iArrayLength
 			hPath_scope.iLoopStart <- iLoopStart
 			SetPropBool(hPath2, "m_bForcePurgeFixedupStrings", true)
-			AddThinkToEnt(hPath2, "PathThink")
+			TankExt.AddThinkToEnt(hPath2, "PathThink")
 		}
 	}
 	CreatePaths = function(PathTable)
@@ -264,6 +243,31 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 
 	//////////////////////// Utilities ////////////////////////
 
+	SetTankModel = function(hTank, sTankModel, sTrackModel = null, sBombModel = null)
+	{
+		local Model = function(hEntity, sModel)
+		{
+			local iModelIndex = PrecacheModel(sModel)
+			local iSequence = hEntity.GetSequence()
+			hEntity.SetModel(sModel)
+			SetPropInt(hEntity, "m_nModelIndex", iModelIndex)
+			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 0)
+			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 3)
+			hEntity.SetSequence(iSequence)
+		}
+		if(sTankModel)
+			Model(hTank, sTankModel)
+		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
+		{
+			local sChildModel = hChild.GetModelName().tolower()
+			if(sChildModel.find("track_l") && sTrackModel)
+				Model(hChild, format("%s_l.mdl", sTrackModel))
+			else if(sChildModel.find("track_r") && sTrackModel)
+				Model(hChild, format("%s_r.mdl", sTrackModel))
+			else if(sChildModel.find("bomb_mechanism") && sBombModel)
+				Model(hChild, sBombModel)
+		}
+	}
 	SetPathConnection = function(hPath1, hPath2, hPathAlt = null)
 	{
 		if(hPath2)
@@ -363,31 +367,6 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 	{
 		local color = (r) | (g << 8) | (b << 16) | (a << 24);
 		NetProps.SetPropInt(entity, "m_clrRender", color);
-	}
-	SetTankModel = function(hTank, sTankModel, sTrackModel = null, sBombModel = null)
-	{
-		local Model = function(hEntity, sModel)
-		{
-			local iModelIndex = PrecacheModel(sModel)
-			local iSequence = hEntity.GetSequence()
-			hEntity.SetModel(sModel)
-			SetPropInt(hEntity, "m_nModelIndex", iModelIndex)
-			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 0)
-			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 3)
-			hEntity.SetSequence(iSequence)
-		}
-		if(sTankModel)
-			Model(hTank, sTankModel)
-		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
-		{
-			local sChildModel = hChild.GetModelName().tolower()
-			if(sChildModel.find("track_l") && sTrackModel)
-				Model(hChild, format("%s_l.mdl", sTrackModel))
-			else if(sChildModel.find("track_r") && sTrackModel)
-				Model(hChild, format("%s_r.mdl", sTrackModel))
-			else if(sChildModel.find("bomb_mechanism") && sBombModel)
-				Model(hChild, sBombModel)
-		}
 	}
 	PathMaker = function(hPlayer)
 	{
@@ -687,7 +666,8 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 	
 			return -1
 		}
-		AddThinkToEnt(hPlayer, "PathMakerThink")
+		TankExt.AddThinkToEnt(hPlayer, "PathMakerThink")
 	}
+	AddThinkToEnt = @(hTank, sFunction) "_AddThinkToEnt" in ROOT ? ROOT._AddThinkToEnt(hTank, sFunction) : ROOT.AddThinkToEnt(hTank, sFunction)
 	ExistsInScope = @(scope, string) string in scope && (typeof(scope[string]) == "instance" || typeof(scope[string]) == "null" ? (scope[string] != null && scope[string].IsValid()) : true)
 }
