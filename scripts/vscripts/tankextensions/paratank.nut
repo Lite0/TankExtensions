@@ -2,7 +2,7 @@ local PARATANK_VALUES_TABLE = {
 	PARATANK_PARACHUTE_MODEL = "models/props_aircrap/tank_chute.mdl"
 	PARATANK_SND_PARACHUTE_OPEN = "items/para_open.wav"
 	PARATANK_SND_PARACHUTE_CLOSE = "items/para_close.wav"
-	PARATANK_GROUND_DISTANCE = Vector(0, 0, -32)
+	PARATANK_GROUND_DISTANCE = -32
 }
 foreach(k,v in PARATANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
@@ -58,7 +58,7 @@ TankExt.NewTankScript("paratank", {
 
 			local Trace = {
 				start = vecOrigin
-				end = vecOrigin + PARATANK_GROUND_DISTANCE
+				end = vecOrigin + Vector(0, 0, PARATANK_GROUND_DISTANCE)
 				ignore = self
 				mask = MASK_NPCSOLID_BRUSHONLY
 			}
