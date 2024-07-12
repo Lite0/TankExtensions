@@ -23,6 +23,7 @@ TankExt.NewTankScript("paratank", {
 			target = hPath.GetName()
 		})
 		hTank_scope.hParachute <- SpawnEntityFromTable("prop_dynamic", { model = PARATANK_PARACHUTE_MODEL })
+		hTank_scope.hParachute.DisableDraw()
 		TankExt.SetParentArray([hTank_scope.hParachute], hTank)
 		hTank_scope.flLastSpeed <- flSpeed
 		hTank_scope.bParachuteActive <- false
@@ -66,6 +67,7 @@ TankExt.NewTankScript("paratank", {
 			if(!Trace.hit && !bParachuteActive)
 			{
 				bParachuteActive = true
+				hTank_scope.hParachute.EnableDraw()
 				self.SetAbsAngles(QAngle(0, self.GetAbsAngles().y, 0))
 				EntFireByHandle(hParachute, "SetAnimation", "deploy", -1, null, null)
 				SetTrackAnim("ref")
