@@ -364,15 +364,30 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		local color = (r) | (g << 8) | (b << 16) | (a << 24);
 		NetProps.SetPropInt(entity, "m_clrRender", color);
 	}
-	SetTankModel = function(hTank, sModel)
+	SetTankModel = function(hTank, sTankModel, sTrackModel = null, sBombModel = null)
 	{
-		local iModelIndex = PrecacheModel(sModel)
-		local iSequence = hTank.GetSequence()
-		hTank.SetModel(sModel)
-		SetPropInt(hTank, "m_nModelIndex", iModelIndex)
-		for(local i = 0; i <= 3; i++)
-			SetPropIntArray(hTank, "m_nModelIndexOverrides", iModelIndex, i)
-		hTank.SetSequence(iSequence)
+		local Model = function(hEntity, sModel)
+		{
+			local iModelIndex = PrecacheModel(sModel)
+			local iSequence = hEntity.GetSequence()
+			hEntity.SetModel(sModel)
+			SetPropInt(hEntity, "m_nModelIndex", iModelIndex)
+			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 0)
+			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 3)
+			hEntity.SetSequence(iSequence)
+		}
+		if(sTankModel)
+			Model(hTank, sTankModel)
+		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
+		{
+			local sChildModel = hChild.GetModelName().tolower()
+			if(sChildModel.find("track_l") && sTrackModel)
+				Model(hChild, format("%s_l.mdl", sTrackModel))
+			else if(sChildModel.find("track_r") && sTrackModel)
+				Model(hChild, format("%s_r.mdl", sTrackModel))
+			else if(sChildModel.find("bomb_mechanism") && sBombModel)
+				Model(hChild, sBombModel)
+		}
 	}
 	PathMaker = function(hPlayer)
 	{
@@ -591,7 +606,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 				
 			if(TankExt.ExistsInScope(this, "hPathHatchVisual"))
 			{
-				if(PathArrayLength > 0)
+				if(PathArray.len() > 0)
 				{
 					local vecLastPath = PathArray.top()[0]
 					local vecHatch = FindByClassname(null, "func_capturezone").GetCenter()
@@ -674,5 +689,5 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		}
 		AddThinkToEnt(hPlayer, "PathMakerThink")
 	}
-	ExistsInScope = @(scope, string) string in scope && (typeof(scope[string]) == "instance" && typeof(scope[string]) != "null" ? scope[string].IsValid() : true)
+	ExistsInScope = @(scope, string) string in scope && (typeof(scope[string]) == "instance" || typeof(scope[string]) == "null" ? (scope[string] != null && scope[string].IsValid()) : true)
 }

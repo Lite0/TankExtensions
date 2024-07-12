@@ -17,6 +17,8 @@ local COMBATTANK_VALUES_TABLE = {
 	COMBATTANK_POSE_PITCH           = 1
 	COMBATTANK_MOUNT_ORIGIN_OFFSET  = Vector(11, 0, 152)
 	COMBATTANK_MODEL                = "models/bots/boss_bot/combat_tank/combat_tank.mdl"
+	COMBATTANK_TRACKS_BLUE          = "models/bots/boss_bot/tank_track"
+	COMBATTANK_TRACKS_RED           = "models/bots/boss_bot/tankred_track"
 	COMBATTANK_MAX_RANGE            = 1200
 }
 foreach(k,v in COMBATTANK_VALUES_TABLE)
@@ -25,6 +27,8 @@ foreach(k,v in COMBATTANK_VALUES_TABLE)
 
 PrecacheSound(COMBATTANK_SND_ROTATE)
 PrecacheModel(COMBATTANK_MODEL)
+PrecacheModel(format("%s_l.mdl", COMBATTANK_TRACKS_RED))
+PrecacheModel(format("%s_r.mdl", COMBATTANK_TRACKS_RED))
 
 ::CombatTankWeapons <- {}
 
@@ -44,6 +48,8 @@ function TankExt::CombatTankRefreshSkin(hTank)
 
 	local iSkin = bBlueTeam ? hTank_scope.bUbered ? 5 : 2 + hTank_scope.iSkinLast : hTank_scope.bUbered ? 4 : hTank_scope.iSkinLast
 	local iSkinWeapon = bBlueTeam ? hTank_scope.bUbered ? 3 : 1 : hTank_scope.bUbered ? 2 : 0
+
+	SetTankModel(hTank, null, bBlueTeam ? COMBATTANK_TRACKS_BLUE : COMBATTANK_TRACKS_RED)
 
 	hTank.SetSkin(iSkin)
 	for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
@@ -109,7 +115,7 @@ TankExt.NewTankScript("combattank*", {
 		hTank_scope.bMovingLast <- false
 		hTank_scope.bUbered <- false
 
-		TankExt.SetTankModel(hTank, COMBATTANK_MODEL)
+		TankExt.SetTankModel(hTank, COMBATTANK_MODEL, COMBATTANK_TRACKS_BLUE)
 
 		local sParams = split(sName, "|")
 		if(sParams.len() == 3)
