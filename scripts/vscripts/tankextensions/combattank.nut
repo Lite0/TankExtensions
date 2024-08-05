@@ -11,7 +11,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 local COMBATTANK_VALUES_TABLE = {
-	COMBATTANK_SND_ROTATE           = "plats/tram_move.wav"
+	COMBATTANK_SND_ROTATE           = ")plats/tram_move.wav"
 	COMBATTANK_ROTATE_SPEED_DEFAULT = 0.8
 	COMBATTANK_POSE_YAW             = 2
 	COMBATTANK_POSE_PITCH           = 1
@@ -19,7 +19,7 @@ local COMBATTANK_VALUES_TABLE = {
 	COMBATTANK_MODEL                = "models/bots/boss_bot/combat_tank/combat_tank.mdl"
 	COMBATTANK_TRACKS_BLUE          = "models/bots/boss_bot/tank_track"
 	COMBATTANK_TRACKS_RED           = "models/bots/boss_bot/tankred_track"
-	COMBATTANK_MAX_RANGE            = 1200
+	COMBATTANK_MAX_RANGE            = 1400
 }
 foreach(k,v in COMBATTANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
@@ -99,6 +99,8 @@ TankExt.NewTankScript("combattank*", {
 
 		hTank_scope.SoundPlaying <- {}
 		hTank_scope.SoundQueue <- {}
+
+		hTank_scope.LaserTrace <- {}
 	
 		hTank_scope.angCurrent <- QAngle()
 		hTank_scope.angGoalIdle <- QAngle()
@@ -113,7 +115,9 @@ TankExt.NewTankScript("combattank*", {
 		hTank_scope.iDirIdle <- 1
 		hTank_scope.iTeamNumLast <- hTank.GetTeam()
 		hTank_scope.bMovingLast <- false
+
 		hTank_scope.bUbered <- false
+		hTank_scope.bAimFar <- false
 
 		TankExt.SetTankModel(hTank, COMBATTANK_MODEL, COMBATTANK_TRACKS_BLUE)
 
@@ -145,7 +149,7 @@ TankExt.NewTankScript("combattank*", {
 					if("Spawn" in WeaponTable)
 					{
 						hWeapon = WeaponTable.Spawn(hTank)
-						TankExt.SetParentArray([hWeapon], hTank, i == 1 ? "weapon_l" : "weapon_r")
+						TankExt.SetParentArray([hWeapon], hTank, i == 1 ? "weapon_r" : "weapon_l")
 					}
 					if("OnDeath" in WeaponTable)
 						TankExt.SetDestroyCallback(hWeapon, WeaponTable.OnDeath)
@@ -207,24 +211,6 @@ TankExt.NewTankScript("combattank*", {
 			local angRotation = self.GetAbsAngles()
 			vecMount = self.GetOrigin() + RotatePosition(Vector(), angRotation, COMBATTANK_MOUNT_ORIGIN_OFFSET)
 
-			if("hBeam" in this)
-			{
-				local iLaser = self.LookupAttachment("laser_origin")
-				local vecLaser = self.GetAttachmentOrigin(iLaser)
-				local angLaser = self.GetAttachmentAngles(iLaser)
-				local Trace = {
-					start = vecLaser
-					end = vecLaser + angLaser.Forward() * 8192
-					ignore = hTank
-					mask = MASK_SHOT
-				}
-				if(TraceLineEx(Trace))
-				{
-					hBeam.SetAbsOrigin(vecLaser)
-					hBeamEnd.SetAbsOrigin(Trace.endpos)
-				}
-			}
-
 			foreach(sName, SoundTable in SoundQueue)
 			{
 				delete SoundQueue[sName]
@@ -242,7 +228,7 @@ TankExt.NewTankScript("combattank*", {
 		
 			hEnemy = null
 			vecEnemyTarget = null
-			local flEnemyDist = COMBATTANK_MAX_RANGE
+			local flEnemyDist = bAimFar ? 0 : COMBATTANK_MAX_RANGE
 			for(local hPlayer; hPlayer = FindByClassnameWithin(hPlayer, "player", vecOrigin, COMBATTANK_MAX_RANGE);)
 			{
 				local vecPlayerEye = hPlayer.EyePosition()
@@ -253,7 +239,7 @@ TankExt.NewTankScript("combattank*", {
 					hPlayer.GetTeam() != self.GetTeam()	&&
 					GetPropInt(hPlayer, "m_lifeState") == LIFE_ALIVE &&
 					TraceLine(vecPlayerEye, vecMount, self) == 1 &&
-					flEnemyDist > flPlayerDist &&
+					(bAimFar ? flEnemyDist < flPlayerDist : flEnemyDist > flPlayerDist) &&
 					!TankExt.IsPlayerStealthedOrDisguised(hPlayer)
 				)
 				{
@@ -272,7 +258,7 @@ TankExt.NewTankScript("combattank*", {
 					if(
 						hBuilding.GetTeam() != self.GetTeam() &&
 						TraceLine(vecBuildingCenter, vecMount, self) == 1 &&
-						flEnemyDist > flBuildingDist
+						(bAimFar ? flEnemyDist < flBuildingDist : flEnemyDist > flBuildingDist)
 					)
 					{
 						hEnemy = hBuilding
@@ -303,8 +289,22 @@ TankExt.NewTankScript("combattank*", {
 				}
 			}
 
+			local iLaser = self.LookupAttachment("laser_origin")
+			local vecLaser = self.GetAttachmentOrigin(iLaser)
+			local angLaser = self.GetAttachmentAngles(iLaser)
+			LaserTrace = {
+				start = vecLaser
+				end = vecLaser + angLaser.Forward() * 8192
+				ignore = hTank
+				mask = MASK_SHOT_HULL
+			}
+			TraceLineEx(LaserTrace)
+
 			if(hEnemy)
 			{
+				if("enthit" in LaserTrace && LaserTrace.enthit == hEnemy)
+					LaserTrace.endpos = vecEnemyTarget
+
 				flRotateSpeed = COMBATTANK_ROTATE_SPEED_DEFAULT
 				local vecDirToEnemy = vecEnemyTarget - vecMount
 				vecDirToEnemy = RotatePosition(Vector(), angRotation * -1, vecDirToEnemy)
@@ -319,6 +319,12 @@ TankExt.NewTankScript("combattank*", {
 				flRotateSpeed = COMBATTANK_ROTATE_SPEED_DEFAULT * 0.5
 				iDirIdle = 0 - iDirIdle
 				angGoal = QAngle(RandomFloat(-10, 10), 50 * iDirIdle + (iDirIdle == -1 ? 360 : 0), 0)
+			}
+			
+			if("hBeam" in this)
+			{
+				hBeam.SetAbsOrigin(vecLaser)
+				hBeamEnd.SetAbsOrigin(LaserTrace.endpos)
 			}
 			
 			////////// RotateMount //////////

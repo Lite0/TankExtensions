@@ -17,10 +17,10 @@
 
 local COMBATTANK_VALUES_TABLE = {
 	COMBATTANK_MINIGUN_SPREAD_MULTIPLIER = 1
-	COMBATTANK_MINIGUN_SND_SPINUP        = "mvm/giant_heavy/giant_heavy_gunwindup.wav"
-	COMBATTANK_MINIGUN_SND_SPINNING      = "mvm/giant_heavy/giant_heavy_gunspin.wav"
-	COMBATTANK_MINIGUN_SND_SPINDOWN      = "mvm/giant_heavy/giant_heavy_gunwinddown.wav"
-	COMBATTANK_MINIGUN_SND_FIRE          = "mvm/giant_heavy/giant_heavy_gunfire.wav"
+	COMBATTANK_MINIGUN_SND_SPINUP        = ")mvm/giant_heavy/giant_heavy_gunwindup.wav"
+	COMBATTANK_MINIGUN_SND_SPINNING      = ")mvm/giant_heavy/giant_heavy_gunspin.wav"
+	COMBATTANK_MINIGUN_SND_SPINDOWN      = ")mvm/giant_heavy/giant_heavy_gunwinddown.wav"
+	COMBATTANK_MINIGUN_SND_FIRE          = ")mvm/giant_heavy/giant_heavy_gunfire.wav"
 	COMBATTANK_MINIGUN_PARTICLE_TRACER   = "bullet_tracer01"
 	COMBATTANK_MINIGUN_PARTICLE_MUZZLE   = "muzzle_minigun_constant"
 	COMBATTANK_MINIGUN_PARTICLE_CASING   = "eject_minigunbrass"
@@ -124,11 +124,19 @@ CombatTankWeapons.minigun <- {
 								mask = MASK_SHOT
 							}
 							TraceLineEx(Trace)
-							if("enthit" in Trace && Trace.enthit.IsPlayer() && Trace.enthit.GetTeam() != hTank.GetTeam())
+							if("enthit" in Trace)
 							{
-								if(!Trace.enthit.InCond(TF_COND_DISGUISED))
-									Trace.enthit.EmitSound("Flesh.BulletImpact")
-								Trace.enthit.TakeDamageCustom(hTank, hTank, null, Vector(), Vector(), COMBATTANK_MINIGUN_BULLET_DAMAGE, DMG_BULLET, TF_DMG_CUSTOM_MINIGUN)
+								local hHit = Trace.enthit
+								if(hHit.IsValid() && "GetTeam" in hHit && hHit.GetTeam() != hTank.GetTeam())
+								{
+									local sClassname = hHit.GetClassname()
+									if(sClassname == "player")
+										if(!hHit.InCond(TF_COND_DISGUISED))
+											hHit.EmitSound("Flesh.BulletImpact")
+									if(startswith(sClassname, "obj_"))
+										hHit.EmitSound("SolidMetal.BulletImpact")
+									hHit.TakeDamageCustom(hTank, hTank, null, Vector(), Vector(), COMBATTANK_MINIGUN_BULLET_DAMAGE, DMG_BULLET, TF_DMG_CUSTOM_MINIGUN)
+								}
 							}
 	
 							local hParticleTracer = SpawnEntityFromTable("info_particle_system", {
@@ -140,8 +148,8 @@ CombatTankWeapons.minigun <- {
 							local hTracerTarget = SpawnEntityFromTable("info_target", { origin = Trace.endpos, spawnflags = 0x01 })
 							SetPropBool(hTracerTarget, "m_bForcePurgeFixedupStrings", true)
 							SetPropEntityArray(hParticleTracer, "m_hControlPointEnts", hTracerTarget, 0)
-							EntFireByHandle(hParticleTracer, "Kill", null, COMBATTANK_MINIGUN_FIRE_DELAY, null, null)
-							EntFireByHandle(hTracerTarget, "Kill", null, COMBATTANK_MINIGUN_FIRE_DELAY, null, null)
+							EntFireByHandle(hParticleTracer, "Kill", null, 0.066, null, null)
+							EntFireByHandle(hTracerTarget, "Kill", null, 0.066, null, null)
 							EntFireByHandle(hParticleMuzzle1, "Start", null, -1, null, null)
 							EntFireByHandle(hParticleMuzzle2, "Start", null, -1, null, null)
 							EntFireByHandle(hParticleCasing1, "Start", null, -1, null, null)

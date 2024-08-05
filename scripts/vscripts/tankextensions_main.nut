@@ -88,6 +88,18 @@ local UNOFFICIAL_CONSTANTS = {
 	SND_IGNORE_NAME                          = 512
 	SND_DO_NOT_OVERWRITE_EXISTING_ON_CHANNEL = 1024
 
+	CHAN_REPLACE    = -1
+	CHAN_AUTO       = 0
+	CHAN_WEAPON     = 1
+	CHAN_VOICE      = 2
+	CHAN_ITEM       = 3
+	CHAN_BODY       = 4
+	CHAN_STREAM     = 5
+	CHAN_STATIC     = 6
+	CHAN_VOICE2     = 7
+	CHAN_VOICE_BASE = 8
+	CHAN_USER_BASE  = 136
+
 	MASK_ALL                   = -1
 	MASK_SPLITAREAPORTAL       = 48
 	MASK_SOLID_BRUSHONLY       = 16395
@@ -108,6 +120,17 @@ local UNOFFICIAL_CONSTANTS = {
 	MASK_NPCSOLID              = 33701899
 	MASK_SHOT_HULL             = 100679691
 	MASK_SHOT                  = 1174421507
+
+	// damagefilter redefinitions
+	DMG_USE_HITLOCATIONS                    = DMG_AIRBOAT
+	DMG_HALF_FALLOFF                        = DMG_RADIATION
+	DMG_CRITICAL                            = DMG_ACID
+	DMG_RADIUS_MAX                          = DMG_ENERGYBEAM
+	DMG_IGNITE                              = DMG_PLASMA
+	DMG_USEDISTANCEMOD                      = DMG_SLOWBURN
+	DMG_NOCLOSEDISTANCEMOD                  = DMG_POISON
+	DMG_MELEE                               = DMG_BLAST_SURFACE
+	DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE = DMG_DISSOLVE
 }
 foreach(k,v in UNOFFICIAL_CONSTANTS)
 	if(!(k in ROOT))
@@ -194,7 +217,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		foreach(sName in PathArray)
 		{
 			local hPath = FindByName(null, sName)
-			if(!(hPath.GetEFlags() & EFL_NO_MEGAPHYSCANNON_RAGDOLL))
+			if(hPath && !(hPath.GetEFlags() & EFL_NO_MEGAPHYSCANNON_RAGDOLL))
 			{
 				hPath.AddEFlags(EFL_NO_MEGAPHYSCANNON_RAGDOLL)
 				AddOutput(hPath, "OnPass", "!activator", "RunScriptCode", "TankExt.RunTankScript.call(this)", -1, -1)

@@ -21,12 +21,12 @@ WaveSchedule
 			Param "
 IncludeScript(`tankextensions_main`, getroottable())
 
-TankExt.SetValueOverrides({
-	COMBATTANK_ROTATE_SPEED_DEFAULT = 2    // default: 0.8
-	COMBATTANK_MAX_RANGE = 2000            // default: 1200
-	COMBATTANK_MINIGUN_BULLET_DAMAGE = 45  // default: 22
-	COMBATTANK_ROCKETPOD_RELOAD_DELAY = 0  // default: 0.3
-})
+// TankExt.SetValueOverrides({
+//     COMBATTANK_ROTATE_SPEED_DEFAULT = 2    // default: 0.8
+//     COMBATTANK_MAX_RANGE = 2000            // default: 1400
+//     COMBATTANK_MINIGUN_BULLET_DAMAGE = 45  // default: 22
+//     COMBATTANK_ROCKETPOD_RELOAD_DELAY = 0  // default: 0.3
+// })
 
 IncludeScript(`tankextensions/paratank`, getroottable())
 IncludeScript(`tankextensions/ubertank`, getroottable())
