@@ -34,6 +34,8 @@ If the ending path is inside an in-map path node then the new path will merge in
 > - **Rocket Pod**
 >   - rocketpod
 >   - rocketpod_homing
+> - **Railgun**
+>   - railgun
 
 **Fire Ring Tank**
 - fireringtank
@@ -50,9 +52,19 @@ If the ending path is inside an in-map path node then the new path will merge in
 **Tankdozer**
 - tankdozer
   
-**UberTank**
+**Uber Tank**
 - ubertank|starttime|duration
 > [!NOTE]
 > **starttime** and **duration** should be values. (ubertank|0|30)  
 > Setting either value to **-1** will disable the respective parameter's functionality and will require manual inputs depending on what's disabled.  
 > Manually toggling ubercharge can be done by firing a **CallScriptFunction** input on the tank with a parameter of **ToggleUber**.
+
+**Vac Tank**
+- vactank_resisttype
+> [!NOTE]
+> Can use any combination of the three damage types.  
+> Examples: vactank_bullet vactank_fire_blast vactank_bullet_blast_fire
+
+**Targe Tank**
+- targetank
+- targetank_color

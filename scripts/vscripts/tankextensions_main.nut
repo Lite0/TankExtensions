@@ -163,7 +163,8 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			local hPath1 = SpawnEntityFromTable("path_track", {
 				origin = OriginArray[0]
 				targetname = format("%s_1", sPathName)
-				OnPass = format("%s,CallScriptFunction,LoopInitialize,0,-1", format("%s_2", sPathName))
+				"OnPass#1" : format("%s,CallScriptFunction,LoopInitialize,0,-1", format("%s_2", sPathName))
+				"OnPass#2" : "!activator,RunScriptCode,TankExt.RunTankScript.call(this),-1,-1"
 			})
 			local hPath2 = SpawnEntityFromTable("path_track", {
 				origin = OriginArray[1]
@@ -171,6 +172,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 				vscripts = "tankextensions/misc/loopingpath_think"
 			})
 			local hPath3 = SpawnEntityFromTable("path_track", {
+				origin = Vector(99999)
 				targetname = format("%s_3", sPathName)
 			})
 			TankExt.SetPathConnection(hPath1, hPath2)
@@ -271,12 +273,12 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		local Model = function(hEntity, sModel)
 		{
 			local iModelIndex = PrecacheModel(sModel)
-			local iSequence = hEntity.GetSequence()
+			local sSequence = hEntity.GetSequenceName(hEntity.GetSequence())
 			hEntity.SetModel(sModel)
 			SetPropInt(hEntity, "m_nModelIndex", iModelIndex)
 			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 0)
 			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 3)
-			hEntity.SetSequence(iSequence)
+			hEntity.SetSequence(hEntity.LookupSequence(sSequence))
 		}
 		if(sTankModel)
 			Model(hTank, sTankModel)
