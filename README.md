@@ -1,5 +1,4 @@
-# TankExtensions
-VScript library for custom tank implementation 
+![](tankextensionsname.png)
 ## Usage
 Include the main script and tank scripts of your choosing to the root table within a popfile's InitWaveOutput  
 
