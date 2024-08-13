@@ -54,17 +54,12 @@ TankExt.NewTankScript("targetank", {
 		hTank_scope.hTrail.AcceptInput("HideSprite", null, null, null)
 		TankExt.SetParentArray([hTank_scope.hTargeModel, hTank_scope.hTrail], hTank)
 
-		if("Paintable" in hTank_scope)
-		{
-			local Colors1 = split(TARGETANK_COLOR1, " ")
-			local Colors2 = split(TARGETANK_COLOR2, " ")
-			Colors1.apply(@(value) value.tointeger())
-			Colors2.apply(@(value) value.tointeger())
-			local vecColor1 = Vector(Colors1[0], Colors1[1], Colors1[2])
-			local vecColor2 = Vector(Colors2[0], Colors2[1], Colors2[2])
-			hTank_scope.Colors <- [vecColor1, vecColor2]
-		}
+		hTank_scope.hTracks <- []
+		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
+			if(hChild.GetModelName().find("track_"))
+				hTank_scope.hTracks.append(hChild)
 
+		hTank_scope.bPaintable <- false
 		hTank_scope.PlayersLast <- []
 		hTank_scope.flTimeNext <- Time() + TARGETANK_RECHARGE_DURATION
 		hTank_scope.flTimeLast <- Time()
@@ -126,7 +121,6 @@ TankExt.NewTankScript("targetank", {
 				TankExt.SetTankColor(self, sColor)
 			}
 
-			local bPaintable = "Paintable" in this
 			if(iState == 0)
 			{
 				if(bPaintable)
@@ -137,9 +131,14 @@ TankExt.NewTankScript("targetank", {
 				if(bPaintable)
 					Color(false)
 
+				local flTankSpeed = self.GetAbsVelocity().Length()
+
+				foreach(hTrack in hTracks)
+					hTrack.SetPlaybackRate(flTankSpeed / 75.0)
+
 				local angRotation = self.GetAbsAngles()
 				local Players = []
-				if(self.GetAbsVelocity().Length() > TARGETANK_CHARGE_SPEED * 0.75)
+				if(flTankSpeed > TARGETANK_CHARGE_SPEED * 0.75)
 					for(local hPlayer; hPlayer = FindByClassnameWithin(hPlayer, "player", self.GetOrigin() + RotatePosition(Vector(), angRotation, Vector(130, 0, 32)), 80);)
 					{
 						if(hPlayer.IsAlive() && hPlayer.GetTeam() != self.GetTeam())
@@ -178,7 +177,17 @@ TankExt.NewTankScript("targetank_color", {
 	}
 	OnSpawn = function(hTank, sName, hPath)
 	{
-		hTank.GetScriptScope().Paintable <- null
 		TankExt.TankScripts.targetank.OnSpawn(hTank, sName, hPath)
+		local hTank_scope = hTank.GetScriptScope()
+
+		local Colors1 = split(TARGETANK_COLOR1, " ")
+		local Colors2 = split(TARGETANK_COLOR2, " ")
+		Colors1.apply(@(value) value.tointeger())
+		Colors2.apply(@(value) value.tointeger())
+		local vecColor1 = Vector(Colors1[0], Colors1[1], Colors1[2])
+		local vecColor2 = Vector(Colors2[0], Colors2[1], Colors2[2])
+		hTank_scope.Colors <- [vecColor1, vecColor2]
+
+		hTank_scope.bPaintable = true
 	}
 })
