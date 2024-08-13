@@ -6,7 +6,7 @@ Include the main script and tank scripts of your choosing to the root table with
 `IncludeScript("tankextensions/paratank", getroottable())`  
 
 Then set the name keyvalue of any tank in your popfile to one that matches in the included scripts  
-Example usage can be found in the [example popfile](mvm_slick_v4_tankextensions.pop) and more info about how things work can be found within the script files themselves  
+Example usage can be found in the [example popfile](mvm_slick_v4a_tankextensions.pop) and more info about how things work can be found within the script files themselves  
 ## Path Maker
 You can easily create new tank paths with [TankExtension's built-in tool](https://i.imgur.com/ElIxW5x.mp4).  
 
