@@ -137,7 +137,7 @@ CombatTankWeapons.railgun <- {
 						entity = hTank
 						filter_type = RECIPIENT_FILTER_GLOBAL
 					})
-					EntFireByHandle(self, "SetAnimation", "fire", -1, null, null)
+					self.AcceptInput("SetAnimation", "fire", null, null)
 					EntFireByHandle(self, "CallScriptFunction", "Shoot", 1.7, null, null)
 				}
 			}

@@ -10,13 +10,12 @@ foreach(k,v in BLIMP_VALUES_TABLE)
 PrecacheModel(BLIMP_MODEL)
 
 TankExt.NewTankScript("blimp", {
+	Model = BLIMP_MODEL
+	DisableChildModels = 1
 	OnSpawn = function(hTank, sName, hPath)
 	{
 		hTank.SetAbsAngles(QAngle(0, hTank.GetAbsAngles().y, 0))
-		TankExt.SetTankModel(hTank, BLIMP_MODEL)
 		hTank.SetSkin(hTank.GetTeam() == 3 ? BLIMP_SKIN_BLUE : BLIMP_SKIN_RED)
-		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
-			hChild.DisableDraw()
 
 		local hTank_scope = hTank.GetScriptScope()
 		local flSpeed = GetPropFloat(hTank, "m_speed")
@@ -27,17 +26,14 @@ TankExt.NewTankScript("blimp", {
 			target = hPath.GetName()
 		})
 		hTank_scope.flLastSpeed <- flSpeed
-		hTank_scope.Think <- function()
+		hTank_scope.BlimpThink <- function()
 		{
-			if(self.GetModelName() != BLIMP_MODEL)
-				TankExt.SetTankModel(self, BLIMP_MODEL)
-
 			local vecTrackTrain = hTrackTrain.GetOrigin()
 			self.SetAbsOrigin(vecTrackTrain)
 			self.GetLocomotionInterface().Reset()
 
 			local flSpeed = GetPropFloat(self, "m_speed")
-			if(flSpeed == 0) flSpeed = 0.001
+			if(flSpeed == 0) flSpeed = 0.0001
 			if(flSpeed != flLastSpeed)
 			{
 				flLastSpeed = flSpeed
@@ -45,7 +41,7 @@ TankExt.NewTankScript("blimp", {
 			}
 			return -1
 		}
-		TankExt.AddThinkToEnt(hTank, "Think")
+		TankExt.AddThinkToEnt(hTank, "BlimpThink")
 	}
 	OnDeath = function()
 	{
@@ -55,12 +51,6 @@ TankExt.NewTankScript("blimp", {
 	}
 })
 
-TankExt.NewTankScript("blimp_red", {
-	OnSpawn = function(hTank, sName, hPath)
-	{
-		hTank.SetTeam(2)
-		EntFireByHandle(hTank, "RunScriptCode", "SetPropBool(self, `m_bGlowEnabled`, true)", 0.1, null, null)
-		TankExt.TankScripts.blimp.OnSpawn(hTank, sName, hPath)
-	}
-	OnDeath = TankExt.TankScripts.blimp.OnDeath
-})
+local BlimpRedTable = clone TankExt.TankScripts.blimp
+BlimpRedTable.TeamNum <- 2
+TankExt.NewTankScript("blimp_red", BlimpRedTable)

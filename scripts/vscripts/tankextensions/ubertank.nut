@@ -19,8 +19,6 @@ TankExt.NewTankScript("ubertank*", {
 		if(sParams.len() == 1) sParams.append(0)
 		if(sParams.len() == 2) sParams.append(30)
 
-		hTank.KeyValueFromString("targetname", sParams[0])
-
 		local flTimeStart = sParams[1].tofloat()
 		if(flTimeStart >= 0) EntFireByHandle(hTank, "CallScriptFunction", "ToggleUber", flTimeStart, null, null)
 
@@ -58,7 +56,7 @@ TankExt.NewTankScript("ubertank*", {
 				})
 			}
 		}
-		hTank_scope.Think <- function()
+		hTank_scope.UberThink <- function()
 		{
 			if(bUbered)
 			{
@@ -71,6 +69,6 @@ TankExt.NewTankScript("ubertank*", {
 			}
 			return -1
 		}
-		TankExt.AddThinkToEnt(hTank, "Think")
+		TankExt.AddThinkToEnt(hTank, "UberThink")
 	}
 })

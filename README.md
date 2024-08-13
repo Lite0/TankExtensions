@@ -62,8 +62,13 @@ If the ending path is inside an in-map path node then the new path will merge in
 - vactank_resisttype
 > [!NOTE]
 > Can use any combination of the three damage types.  
-> Examples: vactank_bullet vactank_fire_blast vactank_bullet_blast_fire
+> Examples: `vactank_bullet` `vactank_fire_blast` `vactank_bullet_blast_fire`
 
 **Targe Tank**
 - targetank
 - targetank_color
+
+**Paint Tank**
+- painttank|color
+> [!NOTE]
+> Color is an RGB format. `painttank|255 111 0`

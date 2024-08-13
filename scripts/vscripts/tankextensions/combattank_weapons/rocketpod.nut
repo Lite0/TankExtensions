@@ -76,7 +76,7 @@ CombatTankWeapons.rocketpod <- {
 				iSlots.remove(iRNG)
 				
 				SetPropInt(hWeapon, "m_iParentAttachment", iBarrel)
-				EntFireByHandle(hWeapon, "FireOnce", null, -1, null, null)
+				hWeapon.AcceptInput("FireOnce", null, null, null)
 		
 				DispatchParticleEffect("rocketbackblast", self.GetAttachmentOrigin(iBarrel + 9), self.GetAttachmentAngles(iBarrel + 9).Forward())
 				TankExt.CombatTankPlaySound({
@@ -174,15 +174,15 @@ CombatTankWeapons.rocketpod <- {
 					local sTrail = bHoming ? COMBATTANK_ROCKETPOD_PARTICLE_TRAIL_HOMING : COMBATTANK_ROCKETPOD_PARTICLE_TRAIL
 					if(sTrail != "rockettrail")
 					{
-						EntFireByHandle(hRocket, "DispatchEffect", "ParticleEffectStop", -1, null, null)
+						hRocket.AcceptInput("DispatchEffect", "ParticleEffectStop", null, null)
 						local hTrail = CreateByClassname("trigger_particle")
 						SetPropBool(hTrail, "m_bForcePurgeFixedupStrings", true)
 						hTrail.KeyValueFromString("particle_name", sTrail)
 						hTrail.KeyValueFromInt("attachment_type", 1)
 						hTrail.KeyValueFromInt("spawnflags", 64)
 						DispatchSpawn(hTrail)
-						EntFireByHandle(hTrail, "StartTouch", "!activator", -1, hRocket, hRocket)
-						EntFireByHandle(hTrail, "Kill", "", -1, null, null)
+						hTrail.AcceptInput("StartTouch", null, hRocket, hRocket)
+						hTrail.Kill()
 					}
 
 					local iTeamNum = hTank.GetTeam()
@@ -214,7 +214,5 @@ CombatTankWeapons.rocketpod <- {
 	}
 }
 
-CombatTankWeapons.rocketpod_homing <- {}
-foreach(k, v in CombatTankWeapons.rocketpod)
-	CombatTankWeapons.rocketpod_homing[k] <- v
+CombatTankWeapons.rocketpod_homing <- clone CombatTankWeapons.rocketpod
 CombatTankWeapons.rocketpod_homing.Homing <- null

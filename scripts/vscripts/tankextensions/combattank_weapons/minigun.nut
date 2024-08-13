@@ -74,13 +74,13 @@ CombatTankWeapons.minigun <- {
 						entity = hTank
 						filter_type = RECIPIENT_FILTER_GLOBAL
 					})
-					EntFireByHandle(self, "SetAnimation", "spin_up", -1, null, null)
+					self.AcceptInput("SetAnimation", "spin_up", null, null)
 					flTimeIdle = flTime + 1
 				}
 				if(flTime >= flTimeIdle || iState > 1)
 				{
 					local bEnemyInCone = hTank_scope.flAngleDist != null && hTank_scope.flAngleDist < COMBATTANK_MINIGUN_CONE_RADIUS
-					if(iState == 1) EntFireByHandle(self, "SetAnimation", "spining", -1, null, null)
+					if(iState == 1) self.AcceptInput("SetAnimation", "spining", null, null)
 					if(!bEnemyInCone && iState != 2)
 					{
 						iState = 2
@@ -91,10 +91,10 @@ CombatTankWeapons.minigun <- {
 							entity = hTank
 							filter_type = RECIPIENT_FILTER_GLOBAL
 						}, true)
-						EntFireByHandle(hParticleMuzzle1, "Stop", null, -1, null, null)
-						EntFireByHandle(hParticleMuzzle2, "Stop", null, -1, null, null)
-						EntFireByHandle(hParticleCasing1, "Stop", null, -1, null, null)
-						EntFireByHandle(hParticleCasing2, "Stop", null, -1, null, null)
+						hParticleMuzzle1.AcceptInput("Stop", null, null, null)
+						hParticleMuzzle2.AcceptInput("Stop", null, null, null)
+						hParticleCasing1.AcceptInput("Stop", null, null, null)
+						hParticleCasing2.AcceptInput("Stop", null, null, null)
 					}
 					if(bEnemyInCone)
 					{
@@ -150,10 +150,10 @@ CombatTankWeapons.minigun <- {
 							SetPropEntityArray(hParticleTracer, "m_hControlPointEnts", hTracerTarget, 0)
 							EntFireByHandle(hParticleTracer, "Kill", null, 0.066, null, null)
 							EntFireByHandle(hTracerTarget, "Kill", null, 0.066, null, null)
-							EntFireByHandle(hParticleMuzzle1, "Start", null, -1, null, null)
-							EntFireByHandle(hParticleMuzzle2, "Start", null, -1, null, null)
-							EntFireByHandle(hParticleCasing1, "Start", null, -1, null, null)
-							EntFireByHandle(hParticleCasing2, "Start", null, -1, null, null)
+							hParticleMuzzle1.AcceptInput("Start", null, null, null)
+							hParticleMuzzle2.AcceptInput("Start", null, null, null)
+							hParticleCasing1.AcceptInput("Start", null, null, null)
+							hParticleCasing2.AcceptInput("Start", null, null, null)
 						}
 					}
 					flTimeIdle = flTime + 1
@@ -170,10 +170,10 @@ CombatTankWeapons.minigun <- {
 						entity = hTank
 						filter_type = RECIPIENT_FILTER_GLOBAL
 					}, true)
-					EntFireByHandle(hParticleMuzzle1, "Stop", null, -1, null, null)
-					EntFireByHandle(hParticleMuzzle2, "Stop", null, -1, null, null)
-					EntFireByHandle(hParticleCasing1, "Stop", null, -1, null, null)
-					EntFireByHandle(hParticleCasing2, "Stop", null, -1, null, null)
+					hParticleMuzzle1.AcceptInput("Stop", null, null, null)
+					hParticleMuzzle2.AcceptInput("Stop", null, null, null)
+					hParticleCasing1.AcceptInput("Stop", null, null, null)
+					hParticleCasing2.AcceptInput("Stop", null, null, null)
 				}
 			}
 			else if(iState != 0)
@@ -185,7 +185,7 @@ CombatTankWeapons.minigun <- {
 					entity = hTank
 					filter_type = RECIPIENT_FILTER_GLOBAL
 				})
-				EntFireByHandle(self, "SetAnimation", "spin_down", -1, null, null)
+				self.AcceptInput("SetAnimation", "spin_down", null, null)
 			}
 			
 			iState != 0 ? TankExt.CombatTankStopSound({

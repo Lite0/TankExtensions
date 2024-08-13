@@ -112,7 +112,7 @@ TankExt.NewTankScript("vactank_*", {
 				iAlphas.append(k == 0 ? 255 : 0)
 			hTank_scope.iAlphas <- iAlphas
 			hTank_scope.iColorIndex <- 0
-			hTank_scope.Think <- function()
+			hTank_scope.VacThink <- function()
 			{
 				local iNextColorIndex = iColorIndex == iAlphas.len() - 1 ? 0 : iColorIndex + 1
 				iAlphas[iColorIndex] -= VACTANK_COLOR_CYCLE_SPEED
@@ -124,7 +124,7 @@ TankExt.NewTankScript("vactank_*", {
 					TankExt.SetEntityColor(hShield, 255, 255, 255, iAlphas[k])
 				return -1
 			}
-			TankExt.AddThinkToEnt(hTank, "Think")
+			TankExt.AddThinkToEnt(hTank, "VacThink")
 		}
 	}
 })

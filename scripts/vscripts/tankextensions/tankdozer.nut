@@ -35,11 +35,9 @@ TankExt.NewTankScript("tankdozer", {
 		arrayModels.append(SpawnEntityFromTable("prop_dynamic", { model = TANKDOZER_MODEL, solid = 6 }))
 		local hSentry = SpawnEntityFromTable("obj_sentrygun", { origin = "-37 0 176", angles = hTank.GetAbsAngles(), defaultupgrade = TANKDOZER_SENTRY_DEFAULTUPGRADE, modelscale = TANKDOZER_SENTRY_SCALE, spawnflags = 8, teamnum = hTank.GetTeam() })
 		hSentry.SetLocalAngles(QAngle())
-		EntFireByHandle(hSentry, "SetHealth", TANKDOZER_SENTRY_HEALTH.tostring(), -1, null, null)
+		hSentry.AcceptInput("SetHealth", TANKDOZER_SENTRY_HEALTH.tostring(), null, null)
 		arrayModels.append(hSentry)
 		
-		foreach(hEnt in arrayModels)
-			SetPropEntity(hEnt, "m_hLightingOrigin", hTank)
 		TankExt.SetParentArray(arrayModels, hTank)
 
 		// prevents sapper/rtr cheese
@@ -49,8 +47,9 @@ TankExt.NewTankScript("tankdozer", {
 		hSentry_scope.bHasSapperLast <- false
 		hSentry_scope.iHealthLast <- 0
 		hSentry_scope.flNextDamage <- 0
-		hSentry_scope.Think <- function()
+		hSentry_scope.SentryThink <- function()
 		{
+			if(!self.IsValid()) return
 			local bHasSapper = GetPropBool(self, "m_bHasSapper")
 			if(bHasSapper)
 			{
@@ -75,6 +74,6 @@ TankExt.NewTankScript("tankdozer", {
 			bHasSapperLast = bHasSapper
 			return -1
 		}
-		TankExt.AddThinkToEnt(hSentry, "Think")
+		TankExt.AddThinkToEnt(hSentry, "SentryThink")
 	}
 })

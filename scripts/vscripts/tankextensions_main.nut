@@ -25,7 +25,9 @@
 
 // void TankExt.PathMaker(player)   // tool for creating tank paths ingame and prints them to console
 
-// void TankExt.SetTankModel(handle tank, string modelmain, string trackmodel = null, string bombmodel = null)   // sets the tank's models including itself and its accessories
+// void TankExt.SetTankModel(handle tank, table models)   // sets the tank's models including itself and its accessories
+
+// void TankExt.SetTankColor(handle tank, string color)   // sets the tank's color including itself and its accessories
 
 // void TankExt.SetPathConnection(handle path1, handle path2, handle pathalt = null)   // connects paths from one to another
 
@@ -41,7 +43,9 @@
 
 // integer/float TankExt.Clamp(value, min, max)   // inputted value cannot go below min or above max
 
-// void TankExt.AddThinkToEnt(handle tank, string function)   // wrapper for AddThinkToEnt to allow usage with PopExt+
+// void TankExt.AddThinkToEnt(handle entity, string function)   // wrapper for AddThinkToEnt to allow usage with PopExt+ and to attach a think table to tanks
+
+// bool TankExt.HasPathOutput(handle path_track)   // returns true if inputted path already has the output to apply scripts to tanks
 
 // bool TankExt.ExistsInScope(scope, string)   // checks if a string exists inside a script scope, if it finds an instance then it checks if its valid and not null
 
@@ -50,22 +54,21 @@
 ::ROOT <- getroottable()
 ::MAX_CLIENTS <- MaxClients().tointeger()
 
-if (!("ConstantNamingConvention" in ROOT)) {
+if(!("ConstantNamingConvention" in ROOT))
 	foreach(a, b in Constants)
 		foreach(k, v in b)
 			ROOT[k] <- v != null ? v : 0
-}
 
 foreach(k, v in ::NetProps.getclass())
-	if (k != "IsValid" && !(k in ROOT))
+	if(k != "IsValid" && !(k in ROOT))
 		ROOT[k] <- ::NetProps[k].bindenv(::NetProps)
 
 foreach(k, v in ::Entities.getclass())
-	if (k != "IsValid" && !(k in ROOT))
+	if(k != "IsValid" && !(k in ROOT))
 		ROOT[k] <- ::Entities[k].bindenv(::Entities)
 
 foreach(k, v in ::EntityOutputs.getclass())
-	if (k != "IsValid" && !(k in ROOT))
+	if(k != "IsValid" && !(k in ROOT))
 		ROOT[k] <- ::EntityOutputs[k].bindenv(::EntityOutputs)
 
 local UNOFFICIAL_CONSTANTS = {
@@ -161,18 +164,18 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 				return ClientPrint(null, 3, "\x07ffb2b2[ERROR] Looping path endpoint does not connect to itself")
 
 			local hPath1 = SpawnEntityFromTable("path_track", {
-				origin = OriginArray[0]
+				origin     = OriginArray[0]
 				targetname = format("%s_1", sPathName)
 				"OnPass#1" : format("%s,CallScriptFunction,LoopInitialize,0,-1", format("%s_2", sPathName))
-				"OnPass#2" : "!activator,RunScriptCode,TankExt.RunTankScript.call(this),-1,-1"
+				"OnPass#2" : "!activator,RunScriptCode,TankExt.RunTankScript.call(this),0,-1"
 			})
 			local hPath2 = SpawnEntityFromTable("path_track", {
-				origin = OriginArray[1]
+				origin     = OriginArray[1]
 				targetname = format("%s_2", sPathName)
-				vscripts = "tankextensions/misc/loopingpath_think"
+				vscripts   = "tankextensions/misc/loopingpath_think"
 			})
 			local hPath3 = SpawnEntityFromTable("path_track", {
-				origin = Vector(99999)
+				origin     = Vector(99999)
 				targetname = format("%s_3", sPathName)
 			})
 			TankExt.SetPathConnection(hPath1, hPath2)
@@ -199,9 +202,10 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			{
 				PathGroup[i] <- {}
 				PathGroup[i].path_track <- {
-					origin = vecOrigin
+					origin     = vecOrigin
 					targetname = format("%s_%i", sPathName, i + 1)
-					target = i != iArrayLength ? format("%s_%i", sPathName, i + 2) : ""
+					target     = i != iArrayLength ? format("%s_%i", sPathName, i + 2) : ""
+					OnPass     = "!activator,RunScriptCode,TankExt.RunTankScript.call(this),0,-1"
 				}
 				if(i == iArrayLength - 1)
 				{
@@ -214,16 +218,31 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			SpawnEntityGroupFromTable(PathGroup)
 		}
 	}
+	HasPathOutput = function(hPath)
+	{
+		local iTotalOutputs = GetNumElements(hPath, "OnPass")
+		local bHasOutput = false
+		for(local i = 0; i <= iTotalOutputs; i++)
+		{
+			local OutputTable = {}
+			GetOutputTable(hPath, "OnPass", OutputTable, i)
+			if("parameter" in OutputTable && OutputTable.parameter == "TankExt.RunTankScript.call(this)")
+				{ bHasOutput = true; break }
+		}
+		return bHasOutput
+	}
 	StartingPathNames = function(PathArray)
 	{
 		foreach(sName in PathArray)
 		{
 			local hPath = FindByName(null, sName)
-			if(hPath && !(hPath.GetEFlags() & EFL_NO_MEGAPHYSCANNON_RAGDOLL))
+			if(hPath)
 			{
-				hPath.AddEFlags(EFL_NO_MEGAPHYSCANNON_RAGDOLL)
-				AddOutput(hPath, "OnPass", "!activator", "RunScriptCode", "TankExt.RunTankScript.call(this)", -1, -1)
+				if(!TankExt.HasPathOutput(hPath))
+					AddOutput(hPath, "OnPass", "!activator", "RunScriptCode", "TankExt.RunTankScript.call(this)", -1, -1)
 			}
+			else
+				ClientPrint(null, 3, format("\x07FFD700[WARNING] Invalid path name \"%s\"", sName))
 		}
 	}
 	NewTankScript = function(sName, Table)
@@ -233,7 +252,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		if(bWild)
 		{
 			sName = sName.slice(0, sName.len() - 1)
-				TankExt.TankScriptsWild[sName] <- Table
+			TankExt.TankScriptsWild[sName] <- Table
 		}
 		else
 			TankExt.TankScripts[sName] <- Table
@@ -250,17 +269,103 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		
 		local TankTable
 
-		foreach(sName, Table in TankExt.TankScriptsWild)
-			if(startswith(sTankName, sName))
-				{ TankTable = Table; break }
-
-		if (sTankName in TankExt.TankScripts)
+		if(sTankName in TankExt.TankScripts)
 			TankTable = TankExt.TankScripts[sTankName]
-		
+		else
+			foreach(sName, Table in TankExt.TankScriptsWild)
+				if(startswith(sTankName, sName))
+					{
+						TankTable = Table
+						self.KeyValueFromString("targetname", sName)
+						break
+					}
+
 		if(TankTable)
 		{
+			if("Model" in TankTable)
+			{
+				if(typeof TankTable.Model == "string")
+					TankTable.Model = { Default = TankTable.Model }
+				TankExt.SetTankModel(hTank, {
+					Tank = TankTable.Model.Default
+					LeftTrack = "LeftTrack" in TankTable.Model ? TankTable.Model.LeftTrack : null
+					RightTrack = "RightTrack" in TankTable.Model ? TankTable.Model.RightTrack : null
+					Bomb = "Bomb" in TankTable.Model ? TankTable.Model.Bomb : null
+				})
+
+				if(!("Damage1" in TankTable.Model))
+					TankTable.Model.Damage1 <- TankTable.Model.Default
+				if(!("Damage2" in TankTable.Model))
+					TankTable.Model.Damage2 <- TankTable.Model.Damage1
+				if(!("Damage3" in TankTable.Model))
+					TankTable.Model.Damage3 <- TankTable.Model.Damage2
+
+				local hTank_scope = hTank.GetScriptScope()
+				hTank_scope.sModelLast <- hTank.GetModelName()
+				hTank_scope.CustomModelThink <- function()
+				{
+					local sModel = self.GetModelName()
+					if(sModel != sModelLast)
+					{
+						local sNewModel = sModel
+
+						if(sModel.find("damage1"))
+							sNewModel = TankTable.Model.Damage1
+						else if(sModel.find("damage2"))
+							sNewModel = TankTable.Model.Damage2
+						else if(sModel.find("damage3"))
+							sNewModel = TankTable.Model.Damage3
+						else
+							sNewModel = TankTable.Model.Default
+						
+						TankExt.SetTankModel(hTank, { Tank = sNewModel })
+						sModel = sNewModel
+					}
+					sModelLast = sModel
+				}
+				TankExt.AddThinkToEnt(hTank, "CustomModelThink")
+			}
+
+			local DisableModels = function(iFlags)
+			{
+				for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
+				{
+					local sChildModel = hChild.GetModelName().tolower()
+					if((sChildModel.find("track_") && iFlags & 1) || (sChildModel.find("bomb_mechanism") && iFlags & 2))
+						hChild.DisableDraw()
+				}
+			}
+
+			if("DisableChildModels" in TankTable && TankTable.DisableChildModels == 1)
+				DisableModels(3)
+
+			if("DisableTracks" in TankTable && TankTable.DisableTracks == 1)
+				DisableModels(1)
+
+			if("DisableBomb" in TankTable && TankTable.DisableBomb == 1)
+				DisableModels(2)
+
+			if("Color" in TankTable)
+				hTank.AcceptInput("Color", TankTable.Color, null, null)
+
+			if("TeamNum" in TankTable)
+			{
+				hTank.SetTeam(TankTable.TeamNum)
+				EntFireByHandle(hTank, "RunScriptCode", "SetPropBool(self, `m_bGlowEnabled`, true)", 0.066, null, null)
+			}
+
+			if("DisableOutline" in TankTable && TankTable.DisableOutline == 1)
+			{
+				SetPropBool(self, "m_bGlowEnabled", false)
+				EntFireByHandle(hTank, "RunScriptCode", "SetPropBool(self, `m_bGlowEnabled`, false)", 0.066, null, null)
+			}
+
+			if("DisableSmokestack" in TankTable && TankTable.DisableSmokestack == 1)
+				hTank.AcceptInput("DispatchEffect", "ParticleEffectStop", null, null)
+
 			if("OnSpawn" in TankTable)
 				TankTable.OnSpawn(hTank, sTankName, hPath)
+
 			if("OnDeath" in TankTable)
 				TankExt.SetDestroyCallback(hTank, TankTable.OnDeath)
 		}
@@ -268,9 +373,9 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 
 	//////////////////////// Utilities ////////////////////////
 
-	SetTankModel = function(hTank, sTankModel, sTrackModel = null, sBombModel = null)
+	SetTankModel = function(hTank, Model)
 	{
-		local Model = function(hEntity, sModel)
+		local ApplyModel = function(hEntity, sModel)
 		{
 			local iModelIndex = PrecacheModel(sModel)
 			local sSequence = hEntity.GetSequenceName(hEntity.GetSequence())
@@ -280,17 +385,32 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			SetPropIntArray(hEntity, "m_nModelIndexOverrides", iModelIndex, 3)
 			hEntity.SetSequence(hEntity.LookupSequence(sSequence))
 		}
-		if(sTankModel)
-			Model(hTank, sTankModel)
+		if(typeof Model == "string")
+			{ ApplyModel(hTank, Model); return }
+
+		if("Tank" in Model)
+			ApplyModel(hTank, Model.Tank)
 		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
 		{
 			local sChildModel = hChild.GetModelName().tolower()
-			if(sChildModel.find("track_l") && sTrackModel)
-				Model(hChild, format("%s_l.mdl", sTrackModel))
-			else if(sChildModel.find("track_r") && sTrackModel)
-				Model(hChild, format("%s_r.mdl", sTrackModel))
-			else if(sChildModel.find("bomb_mechanism") && sBombModel)
-				Model(hChild, sBombModel)
+			if(sChildModel.find("track_l") && "LeftTrack" in Model && Model.LeftTrack)
+				ApplyModel(hChild, Model.LeftTrack)
+			else if(sChildModel.find("track_r") && "RightTrack" in Model && Model.RightTrack)
+				ApplyModel(hChild, Model.RightTrack)
+			else if(sChildModel.find("bomb_mechanism") && "Bomb" in Model && Model.Bomb)
+				ApplyModel(hChild, Model.Bomb)
+		}
+	}
+	SetTankColor = function(hTank, sColor)
+	{
+		hTank.AcceptInput("Color", sColor, null, null)
+		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
+		{
+			local sChildModel = hChild.GetModelName().tolower()
+			if(sChildModel.find("track_"))
+				hChild.AcceptInput("Color", sColor, null, null)
+			else if(sChildModel.find("bomb_mechanism"))
+				hChild.AcceptInput("Color", sColor, null, null)
 		}
 	}
 	SetPathConnection = function(hPath1, hPath2, hPathAlt = null)
@@ -354,6 +474,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			SetPropEntity(hChild, "m_pParent", hParent)
 			SetPropEntity(hChild, "m_hMoveParent", hParent)
 			SetPropEntity(hChild, "m_Network.m_hParent", hParent)
+			SetPropEntity(hChild, "m_hLightingOrigin", hParent)
 			if(sAttachment)
 				SetPropInt(hChild, "m_iParentAttachment", iAttachment)
 		}
@@ -390,8 +511,8 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 	}
 	SetEntityColor = function(entity, r, g, b, a)
 	{
-		local color = (r) | (g << 8) | (b << 16) | (a << 24);
-		NetProps.SetPropInt(entity, "m_clrRender", color);
+		local color = (r) | (g << 8) | (b << 16) | (a << 24)
+		NetProps.SetPropInt(entity, "m_clrRender", color)
 	}
 	PathMaker = function(hPlayer)
 	{
@@ -693,6 +814,43 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		}
 		TankExt.AddThinkToEnt(hPlayer, "PathMakerThink")
 	}
-	AddThinkToEnt = @(hTank, sFunction) "_AddThinkToEnt" in ROOT ? ROOT._AddThinkToEnt(hTank, sFunction) : ROOT.AddThinkToEnt(hTank, sFunction)
+	AddThinkToEnt = function(hEntity, sFunction) 
+	{
+		local AddThink = @(ent, func) "_AddThinkToEnt" in ROOT ? ROOT._AddThinkToEnt(ent, func) : ROOT.AddThinkToEnt(ent, func)
+		if(hEntity.GetClassname() == "tank_boss")
+		{
+			local hTank = hEntity
+			hTank.ValidateScriptScope()
+			local hTank_scope = hTank.GetScriptScope()
+			if(!("MultiThink" in hTank_scope))
+			{
+				hTank_scope.ThinkTable <- {}
+				hTank_scope.MultiThink <- function()
+				{
+					foreach(sName, sFunction in ThinkTable)
+						sFunction.call(this)
+					return -1
+				}
+				AddThink(hTank, "MultiThink")
+			}
+	
+			if(sFunction == null)
+				{ hTank_scope.ThinkTable.clear(); return }
+			
+			local Function
+			if(sFunction in hTank_scope)
+				Function = hTank_scope[sFunction]
+			else if(sFunction in ROOT)
+				Function = ROOT[sFunction]
+	
+			hTank_scope.ThinkTable[sFunction] <- Function
+		}
+		else
+			AddThink(hEntity, sFunction)
+	}
 	ExistsInScope = @(scope, string) string in scope && (typeof(scope[string]) == "instance" || typeof(scope[string]) == "null" ? (scope[string] != null && scope[string].IsValid()) : true)
 }
+
+for(local hPath; hPath = FindByClassname(hPath, "path_track");)
+	if(!TankExt.HasPathOutput(hPath))
+		AddOutput(hPath, "OnPass", "!activator", "RunScriptCode", "TankExt.RunTankScript.call(this)", -1, -1)

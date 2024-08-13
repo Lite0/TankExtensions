@@ -15,20 +15,23 @@ local COMBATTANK_VALUES_TABLE = {
 	COMBATTANK_ROTATE_SPEED_DEFAULT = 0.8
 	COMBATTANK_POSE_YAW             = 2
 	COMBATTANK_POSE_PITCH           = 1
-	COMBATTANK_MOUNT_ORIGIN_OFFSET  = Vector(11, 0, 152)
 	COMBATTANK_MODEL                = "models/bots/boss_bot/combat_tank/combat_tank.mdl"
-	COMBATTANK_TRACKS_BLUE          = "models/bots/boss_bot/tank_track"
-	COMBATTANK_TRACKS_RED           = "models/bots/boss_bot/tankred_track"
+	COMBATTANK_TRACK_L_BLUE         = "models/bots/boss_bot/tank_track_l.mdl"
+	COMBATTANK_TRACK_R_BLUE         = "models/bots/boss_bot/tank_track_r.mdl"
+	COMBATTANK_TRACK_L_RED          = "models/bots/boss_bot/tankred_track_l.mdl"
+	COMBATTANK_TRACK_R_RED          = "models/bots/boss_bot/tankred_track_r.mdl"
 	COMBATTANK_MAX_RANGE            = 1400
 }
 foreach(k,v in COMBATTANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
 		ROOT[k] <- v
 
-PrecacheSound(COMBATTANK_SND_ROTATE)
 PrecacheModel(COMBATTANK_MODEL)
-PrecacheModel(format("%s_l.mdl", COMBATTANK_TRACKS_RED))
-PrecacheModel(format("%s_r.mdl", COMBATTANK_TRACKS_RED))
+PrecacheModel(COMBATTANK_TRACK_L_BLUE)
+PrecacheModel(COMBATTANK_TRACK_R_BLUE)
+PrecacheModel(COMBATTANK_TRACK_L_RED)
+PrecacheModel(COMBATTANK_TRACK_R_RED)
+PrecacheSound(COMBATTANK_SND_ROTATE)
 
 ::CombatTankWeapons <- {}
 
@@ -49,7 +52,10 @@ function TankExt::CombatTankRefreshSkin(hTank)
 	local iSkin = bBlueTeam ? hTank_scope.bUbered ? 5 : 2 + hTank_scope.iSkinLast : hTank_scope.bUbered ? 4 : hTank_scope.iSkinLast
 	local iSkinWeapon = bBlueTeam ? hTank_scope.bUbered ? 3 : 1 : hTank_scope.bUbered ? 2 : 0
 
-	SetTankModel(hTank, null, bBlueTeam ? COMBATTANK_TRACKS_BLUE : COMBATTANK_TRACKS_RED)
+	TankExt.SetTankModel(hTank, {
+		LeftTrack = bBlueTeam ? COMBATTANK_TRACK_L_BLUE : COMBATTANK_TRACK_L_RED
+		RightTrack = bBlueTeam ? COMBATTANK_TRACK_R_BLUE : COMBATTANK_TRACK_R_RED
+	})
 
 	hTank.SetSkin(iSkin)
 	for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
@@ -90,11 +96,12 @@ function TankExt::CombatTankStopSound(SoundTable)
 }
 
 TankExt.NewTankScript("combattank*", {
+	Model = {
+		Default = COMBATTANK_MODEL
+	}
+	DisableBomb = 1
 	OnSpawn = function(hTank, sName, hPath)
 	{
-		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
-		if(hChild.GetModelName() == "models/bots/boss_bot/bomb_mechanism.mdl") { hChild.DisableDraw(); break }
-
 		local hTank_scope = hTank.GetScriptScope()
 
 		hTank_scope.SoundPlaying <- {}
@@ -119,12 +126,17 @@ TankExt.NewTankScript("combattank*", {
 		hTank_scope.bUbered <- false
 		hTank_scope.bAimFar <- false
 
-		TankExt.SetTankModel(hTank, COMBATTANK_MODEL, COMBATTANK_TRACKS_BLUE)
+		TankExt.CombatTankPlaySound({
+			sound_name = COMBATTANK_SND_ROTATE
+			sound_level = 85
+			entity = hTank
+			filter_type = RECIPIENT_FILTER_GLOBAL
+			pitch = 90
+		}, true)
 
 		local sParams = split(sName, "|")
 		if(sParams.len() == 3)
 		{
-			hTank.KeyValueFromString("targetname", sParams[0])
 			if(sParams[0].find("_red"))
 				hTank.SetTeam(2)
 			
@@ -192,11 +204,8 @@ TankExt.NewTankScript("combattank*", {
 			}
 		}
 
-		hTank_scope.Think <- function()
+		hTank_scope.CombatThink <- function()
 		{
-			if(self.GetModelName() != COMBATTANK_MODEL)
-				TankExt.SetTankModel(hTank, COMBATTANK_MODEL)
-			
 			local iTeamNum = self.GetTeam()
 			if(iTeamNum != iTeamNumLast)
 			{
@@ -205,11 +214,14 @@ TankExt.NewTankScript("combattank*", {
 			}
 			
 			if(!GetPropBool(self, "m_bGlowEnabled")) // this entfire is here because sometimes the glow doesnt realize its team has been changed
+			{
+				EntFireByHandle(self, "RunScriptCode", "SetPropBool(self, `m_bGlowEnabled`, true)", 0.066, null, null)
 				EntFireByHandle(self, "RunScriptCode", "SetPropBool(self, `m_bGlowEnabled`, true)", 0.1, null, null)
+			}
 					
 			local vecOrigin = self.GetOrigin()
 			local angRotation = self.GetAbsAngles()
-			vecMount = self.GetOrigin() + RotatePosition(Vector(), angRotation, COMBATTANK_MOUNT_ORIGIN_OFFSET)
+			vecMount = vecOrigin + RotatePosition(Vector(), angRotation, self.GetAttachmentOrigin(self.LookupAttachment("weapon_l")) - vecOrigin)
 
 			foreach(sName, SoundTable in SoundQueue)
 			{
@@ -371,26 +383,10 @@ TankExt.NewTankScript("combattank*", {
 			// this isnt the exact angle length between the two but its close
 			flAngleDist = hEnemy ? ((angCurrent.Forward() - angGoal.Forward()) * 64).Length() : null
 		
-			if(bMoving && !bMovingLast)
-				TankExt.CombatTankPlaySound({
-					sound_name = COMBATTANK_SND_ROTATE
-					sound_level = 85
-					entity = self
-					filter_type = RECIPIENT_FILTER_GLOBAL
-					pitch = 90
-				}, true)
-			else if(!bMoving)
-				TankExt.CombatTankStopSound({
-					sound_name = COMBATTANK_SND_ROTATE
-					entity = self
-					filter_type = RECIPIENT_FILTER_GLOBAL
-					flags = SND_STOP
-				})
-		
 			bMovingLast = bMoving
 			return -1
 		}
-		TankExt.AddThinkToEnt(hTank, "Think")
+		TankExt.AddThinkToEnt(hTank, "CombatThink")
 	}
 	OnDeath = function()
 	{

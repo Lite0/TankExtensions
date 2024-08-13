@@ -1,0 +1,112 @@
+// lite
+#base robot_standard.pop
+#base robot_gatebot.pop
+#base robot_giant.pop
+WaveSchedule
+{
+	StartingCurrency 10000
+	RespawnWaveTime 0
+
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay
+			Action trigger
+		}
+		InitWaveOutput
+		{
+			Target wave_start_relay
+			Action runscriptcode
+			Param "
+IncludeScript(`tankextensions_main`, getroottable())
+
+//   if you need to change any default values tank scripts include then you do that with this function
+// TankExt.SetValueOverrides({
+//     COMBATTANK_ROTATE_SPEED_DEFAULT = 2    // default: 0.8
+//     COMBATTANK_MAX_RANGE = 2000            // default: 1400
+//     COMBATTANK_MINIGUN_BULLET_DAMAGE = 45  // default: 22
+//     COMBATTANK_ROCKETPOD_RELOAD_DELAY = 0  // default: 0.3
+// })
+
+IncludeScript(`tankextensions/paratank`, getroottable())
+IncludeScript(`tankextensions/ubertank`, getroottable())
+IncludeScript(`tankextensions/combattank`, getroottable())
+IncludeScript(`tankextensions/combattank_weapons/minigun`, getroottable())
+IncludeScript(`tankextensions/combattank_weapons/rocketpod`, getroottable())
+
+TankExt.CreateLoopPaths({
+	tank_loop = [
+		Vector(-1536, 512, -64)
+		Vector(-1536, -256, -64)  // start loop
+		Vector(-1024, -256, -64)
+		Vector(-1024, 256, -64)
+		Vector(-1536, 256, -64)   // end loop
+		Vector(-1536, -256, -64)  // same as start loop
+	]
+})
+TankExt.CreatePaths({
+	tank_para = [
+		Vector(1152, 0, 512)
+		Vector(704, 0, 320)
+		Vector(384, 0, 128)
+		Vector(128, 0, -64)
+		Vector(-512, 0, -72)
+		Vector(-1104, 0, -72)
+	]
+	tank_path = [
+		Vector(1024, 0, -64)
+		Vector(-1104, 0, -64)
+	]
+})
+"
+		}
+		DoneOutput
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+
+		WaveSpawn
+		{
+			TotalCount 1
+			TotalCurrency 0
+			Tank
+			{
+				Health 1000
+				Speed 75
+				Name "combattank|minigun|rocketpod"
+				StartingPathTrackNode "tank_loop_1"
+			}
+		}
+		WaveSpawn
+		{
+			TotalCount 1
+			WaitBeforeStarting 7
+			TotalCurrency 0
+			Tank
+			{
+				Health 1000
+				Speed 75
+				Name "ubertank|5|16"
+				StartingPathTrackNode "tank_path_1"
+			}
+		}
+		WaveSpawn
+		{
+			TotalCount 1
+			WaitBeforeStarting 14
+			TotalCurrency 0
+			Tank
+			{
+				Health 1000
+				Speed 75
+				Name "paratank"
+				StartingPathTrackNode "tank_para_1"
+			}
+		}
+	}
+	Wave
+	{
+	}
+}

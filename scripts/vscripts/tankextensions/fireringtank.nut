@@ -4,7 +4,7 @@ local FIRERINGTANK_VALUES_TABLE = {
 	FIRERINGTANK_SND_SPIN = "weapons/dragon_gun_motor_loop_dry.wav"
 	FIRERINGTANK_PARTICLE = "heavy_ring_of_fire"
 	FIRERINGTANK_FIRE_RATE = 0.5
-	FIRERINGTANK_PARTICLE_FORWARD = Vector(-1, 0, 0)
+	FIRERINGTANK_PARTICLE_FORWARD = Vector(1, 0, 0)
 }
 foreach(k,v in FIRERINGTANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
@@ -31,7 +31,7 @@ TankExt.NewTankScript("fireringtank", {
 		SetPropEntity(hTank_scope.hIgniter, "m_hFilter", hTank_scope.hFilter)
 		
 		hTank_scope.flNextAttack <- 0
-		hTank_scope.Think <- function()
+		hTank_scope.FireRingThink <- function()
 		{
 			local flTime = Time()
 			if(flTime >= flNextAttack)
@@ -44,12 +44,12 @@ TankExt.NewTankScript("fireringtank", {
 				DispatchParticleEffect(FIRERINGTANK_PARTICLE, vecTank + Rotate(Vector(-64, 48, 0)), FIRERINGTANK_PARTICLE_FORWARD)
 				DispatchParticleEffect(FIRERINGTANK_PARTICLE, vecTank + Rotate(Vector(64, -48, 0)), FIRERINGTANK_PARTICLE_FORWARD)
 				DispatchParticleEffect(FIRERINGTANK_PARTICLE, vecTank + Rotate(Vector(-64, -48, 0)), FIRERINGTANK_PARTICLE_FORWARD)
-				EntFireByHandle(hIgniter, "Enable", null, -1, null, null)
+				hIgniter.AcceptInput("Enable", null, null, null)
 				EntFireByHandle(hIgniter, "Disable", null, 0.2, null, null)
 			}
 			return -1
 		}
-		TankExt.AddThinkToEnt(hTank, "Think")
+		TankExt.AddThinkToEnt(hTank, "FireRingThink")
 		TankExt.SetParentArray([hTank_scope.hIgniter], hTank)
 	}
 	OnDeath = function()

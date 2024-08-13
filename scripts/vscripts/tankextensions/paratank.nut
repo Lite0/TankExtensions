@@ -22,21 +22,22 @@ TankExt.NewTankScript("paratank", {
 			startspeed = flSpeed
 			target = hPath.GetName()
 		})
+
 		hTank_scope.hParachute <- SpawnEntityFromTable("prop_dynamic", { model = PARATANK_PARACHUTE_MODEL })
 		hTank_scope.hParachute.DisableDraw()
 		TankExt.SetParentArray([hTank_scope.hParachute], hTank)
+
+		hTank_scope.hTracks <- []
+		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
+			if(hChild.GetModelName().find("track_"))
+				hTank_scope.hTracks.append(hChild)
+
 		hTank_scope.flLastSpeed <- flSpeed
 		hTank_scope.bParachuteActive <- false
-		hTank_scope.Think <- function()
+		hTank_scope.ParaThink <- function()
 		{
 			local vecOrigin = self.GetOrigin()
 			local vecTrackTrain = hTrackTrain.GetOrigin()
-			local SetTrackAnim = function(sAnim)
-			{
-				for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
-					if(hChild.GetModelName().find("tank_track"))
-						EntFireByHandle(hChild, "SetAnimation", sAnim, -1, null, null)
-			}
 			
 			if(!bParachuteActive)
 			{
@@ -55,6 +56,8 @@ TankExt.NewTankScript("paratank", {
 			{
 				self.SetAbsOrigin(vecTrackTrain)
 				self.GetLocomotionInterface().Reset()
+				foreach(hTrack in hTracks)
+					hTrack.SetPlaybackRate(0)
 			}
 
 			local Trace = {
@@ -67,10 +70,10 @@ TankExt.NewTankScript("paratank", {
 			if(!Trace.hit && !bParachuteActive)
 			{
 				bParachuteActive = true
-				hTank_scope.hParachute.EnableDraw()
+				hParachute.EnableDraw()
+				hParachute.AcceptInput("SetAnimation", "deploy", null, null)
 				self.SetAbsAngles(QAngle(0, self.GetAbsAngles().y, 0))
-				EntFireByHandle(hParachute, "SetAnimation", "deploy", -1, null, null)
-				SetTrackAnim("ref")
+				StopSoundOn("MVM.TankEngineLoop", self)
 				EmitSoundEx({
 					sound_name = PARATANK_SND_PARACHUTE_OPEN
 					filter_type = RECIPIENT_FILTER_GLOBAL
@@ -80,8 +83,8 @@ TankExt.NewTankScript("paratank", {
 			else if(Trace.hit && bParachuteActive)
 			{
 				bParachuteActive = false
-				EntFireByHandle(hParachute, "SetAnimation", "retract", -1, null, null)
-				SetTrackAnim("forward")
+				hParachute.AcceptInput("SetAnimation", "retract", null, null)
+				EmitSoundOn("MVM.TankEngineLoop", self)
 				EmitSoundEx({
 					sound_name = PARATANK_SND_PARACHUTE_CLOSE
 					filter_type = RECIPIENT_FILTER_GLOBAL
@@ -90,7 +93,7 @@ TankExt.NewTankScript("paratank", {
 			}
 
 			local flSpeed = GetPropFloat(self, "m_speed")
-			if(flSpeed == 0) flSpeed = 0.001
+			if(flSpeed == 0) flSpeed = 0.0001
 			if(flSpeed != flLastSpeed)
 			{
 				flLastSpeed = flSpeed
@@ -98,7 +101,7 @@ TankExt.NewTankScript("paratank", {
 			}
 			return -1
 		}
-		TankExt.AddThinkToEnt(hTank, "Think")
+		TankExt.AddThinkToEnt(hTank, "ParaThink")
 	}
 	OnDeath = function()
 	{
