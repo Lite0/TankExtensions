@@ -4,6 +4,7 @@ Include the main script and tank scripts of your choosing to the root table with
 
 `IncludeScript("tankextensions_main", getroottable())`  
 `IncludeScript("tankextensions/paratank", getroottable())`  
+`IncludeScript("tankextensions/tankdozer", getroottable())`  
 
 Then set the name keyvalue of any tank in your popfile to one that matches in the included scripts  
 Example usage can be found in the [example popfile](mvm_slick_v4a_tankextensions.pop) and more info about how things work can be found within the script files themselves  
@@ -39,7 +40,7 @@ If the ending path is inside an in-map path node then the new path will merge in
 **Fire Ring Tank**
 - fireringtank
   
-**ParaTank**
+**Parachute Tank**
 - paratank
   
 **Sentry Tank**
@@ -58,7 +59,7 @@ If the ending path is inside an in-map path node then the new path will merge in
 > Setting either value to **-1** will disable the respective parameter's functionality and will require manual inputs depending on what's disabled.  
 > Manually toggling ubercharge can be done by firing a **CallScriptFunction** input on the tank with a parameter of **ToggleUber**.
 
-**Vac Tank**
+**Vaccinator Tank**
 - vactank_resisttype
 > [!NOTE]
 > Can use any combination of the three damage types.  
@@ -72,3 +73,17 @@ If the ending path is inside an in-map path node then the new path will merge in
 - painttank|color
 > [!NOTE]
 > Color is an RGB format. `painttank|255 111 0`
+
+**Chew Chew Tank**
+- chewchewtank
+
+**Hammer Tank**
+- hammertank
+
+**Teleporter Tank**
+- teletank
+> [!NOTE]
+> Bots that can teleport to this tank require the following keyvalue `Tag "bot_teletank"`
+
+**Drill Tank**
+- drilltank

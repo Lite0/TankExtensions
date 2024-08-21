@@ -282,6 +282,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 
 		if(TankTable)
 		{
+			local hTank_scope = hTank.GetScriptScope()
 			if("Model" in TankTable)
 			{
 				if(typeof TankTable.Model == "string")
@@ -300,7 +301,6 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 				if(!("Damage3" in TankTable.Model))
 					TankTable.Model.Damage3 <- TankTable.Model.Damage2
 
-				local hTank_scope = hTank.GetScriptScope()
 				hTank_scope.sModelLast <- hTank.GetModelName()
 				hTank_scope.CustomModelThink <- function()
 				{
@@ -361,7 +361,10 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			}
 
 			if("DisableSmokestack" in TankTable && TankTable.DisableSmokestack == 1)
-				hTank.AcceptInput("DispatchEffect", "ParticleEffectStop", null, null)
+			{
+				hTank_scope.DisableSmokestack <- function()	{ hTank.AcceptInput("DispatchEffect", "ParticleEffectStop", null, null)	}
+				TankExt.AddThinkToEnt(hTank, "DisableSmokestack")
+			}
 
 			if("OnSpawn" in TankTable)
 				TankTable.OnSpawn(hTank, sTankName, hPath)
