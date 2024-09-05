@@ -53,7 +53,6 @@ CombatTankWeapons.railgun <- {
 		{
 			flNextAttack = Time() + COMBATTANK_RAILGUN_FIRE_DELAY
 			bCharging = false
-			hTank_scope.bAimFar = false
 			TankExt.CombatTankPlaySound({
 				sound_name = COMBATTANK_RAILGUN_SND_FIRE1
 				sound_level = 90
@@ -130,7 +129,6 @@ CombatTankWeapons.railgun <- {
 				if(!bCharging && bEnemyInCone && Time() >= flNextAttack)
 				{
 					bCharging = true
-					hTank_scope.bAimFar = true
 					TankExt.CombatTankPlaySound({
 						sound_name = COMBATTANK_RAILGUN_SND_CHARGE
 						sound_level = 90

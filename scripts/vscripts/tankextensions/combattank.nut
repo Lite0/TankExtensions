@@ -124,7 +124,6 @@ TankExt.NewTankScript("combattank*", {
 		hTank_scope.bMovingLast <- false
 
 		hTank_scope.bUbered <- false
-		hTank_scope.bAimFar <- false
 
 		TankExt.CombatTankPlaySound({
 			sound_name = COMBATTANK_SND_ROTATE
@@ -221,7 +220,7 @@ TankExt.NewTankScript("combattank*", {
 					
 			local vecOrigin = self.GetOrigin()
 			local angRotation = self.GetAbsAngles()
-			vecMount = vecOrigin + RotatePosition(Vector(), angRotation, self.GetAttachmentOrigin(self.LookupAttachment("weapon_l")) - vecOrigin)
+			vecMount = self.GetAttachmentOrigin(self.LookupAttachment("weapon_l"))
 
 			foreach(sName, SoundTable in SoundQueue)
 			{
@@ -240,44 +239,45 @@ TankExt.NewTankScript("combattank*", {
 		
 			hEnemy = null
 			vecEnemyTarget = null
-			local flEnemyDist = bAimFar ? 0 : COMBATTANK_MAX_RANGE
-			for(local hPlayer; hPlayer = FindByClassnameWithin(hPlayer, "player", vecOrigin, COMBATTANK_MAX_RANGE);)
+			local FindValidTarget = function(sClassname)
 			{
-				local vecPlayerEye = hPlayer.EyePosition()
-				local vecPlayerCenter = hPlayer.GetCenter()
-				local flPlayerDist = (vecPlayerEye - vecMount).Length()
-				local bPlayerTrace = TraceLine(vecPlayerCenter, vecMount, self) == 1
-				if(
-					hPlayer.GetTeam() != self.GetTeam()	&&
-					GetPropInt(hPlayer, "m_lifeState") == LIFE_ALIVE &&
-					TraceLine(vecPlayerEye, vecMount, self) == 1 &&
-					(bAimFar ? flEnemyDist < flPlayerDist : flEnemyDist > flPlayerDist) &&
-					!TankExt.IsPlayerStealthedOrDisguised(hPlayer)
-				)
+				local flTargetDist = COMBATTANK_MAX_RANGE
+				for(local hEnt; hEnt = FindByClassnameWithin(hEnt, sClassname, vecOrigin, COMBATTANK_MAX_RANGE);)
 				{
-					hEnemy = hPlayer
-					vecEnemyTarget = bPlayerTrace ? vecPlayerCenter : vecPlayerEye
-					flEnemyDist = flPlayerDist
-				}
-			}
-			if(!hEnemy)
-			{
-				for(local hBuilding; hBuilding = FindByClassnameWithin(hBuilding, "obj_*", vecOrigin, COMBATTANK_MAX_RANGE);)
-				{
-					if(hBuilding.GetClassname() == "obj_attachment_sapper") continue
-					local vecBuildingCenter = hBuilding.GetCenter()
-					local flBuildingDist = (vecBuildingCenter - vecMount).Length()
+					local vecEntCenter = hEnt.GetCenter()
+					local vecEntEye = "EyePosition" in hEnt ? hEnt.EyePosition() : vecEntCenter
+					local flEntDist = (vecEntCenter - vecMount).Length()
+					local bCenterTrace = TraceLine(vecEntCenter, vecMount, self) == 1
+					local bEyeTrace = TraceLine(vecEntEye, vecMount, self) == 1
 					if(
-						hBuilding.GetTeam() != self.GetTeam() &&
-						TraceLine(vecBuildingCenter, vecMount, self) == 1 &&
-						(bAimFar ? flEnemyDist < flBuildingDist : flEnemyDist > flBuildingDist)
+						hEnt.GetTeam() != iTeamNum &&
+						hEnt.IsAlive() &&
+						bEyeTrace &&
+						flTargetDist > flEntDist &&
+						(sClassname == "player" ? !TankExt.IsPlayerStealthedOrDisguised(hEnt) : true)
 					)
 					{
-						hEnemy = hBuilding
-						vecEnemyTarget = vecBuildingCenter
-						flEnemyDist = flBuildingDist
+						hEnemy = hEnt
+						vecEnemyTarget = bCenterTrace ? vecEntCenter : vecEntEye
+						flTargetDist = flEntDist
 					}
 				}
+			}
+			local EntityPriority = [
+				"player"
+				"obj_sentrygun"
+				"obj_dispenser"
+				"obj_teleporter"
+				"tank_boss"
+				"merasmus"
+				"headless_hatman"
+				"eyeball_boss"
+				"tf_zombie"
+			]
+			foreach(sClassname in EntityPriority)
+			{
+				FindValidTarget(sClassname)
+				if(hEnemy) break
 			}
 					
 			if(hEnemy != hEnemyLast)
@@ -287,7 +287,19 @@ TankExt.NewTankScript("combattank*", {
 				{
 					EmitSoundEx({
 						sound_name = "weapons/sentry_spot.wav"
-						sound_level = 85
+						entity = self
+						filter_type = RECIPIENT_FILTER_GLOBAL
+						flags = SND_STOP
+					})
+					EmitSoundEx({
+						sound_name = "weapons/sentry_spot_client.wav"
+						entity = hEnemy
+						filter_type = RECIPIENT_FILTER_SINGLE_PLAYER
+						flags = SND_STOP
+					})
+					EmitSoundEx({
+						sound_name = "weapons/sentry_spot.wav"
+						sound_level = 80
 						entity = self
 						filter_type = RECIPIENT_FILTER_GLOBAL
 						pitch = 95
