@@ -31,7 +31,7 @@ PrecacheModel(COMBATTANK_TRACK_L_BLUE)
 PrecacheModel(COMBATTANK_TRACK_R_BLUE)
 PrecacheModel(COMBATTANK_TRACK_L_RED)
 PrecacheModel(COMBATTANK_TRACK_R_RED)
-PrecacheSound(COMBATTANK_SND_ROTATE)
+TankExt.PrecacheSound(COMBATTANK_SND_ROTATE)
 
 ::CombatTankWeapons <- {}
 
@@ -184,7 +184,7 @@ TankExt.NewTankScript("combattank*", {
 					sound_name = "player/invulnerable_on.wav"
 					filter_type = RECIPIENT_FILTER_GLOBAL
 				}
-				PrecacheSound(sndUber.sound_name)
+				TankExt.PrecacheSound(sndUber.sound_name)
 				EmitSoundEx(sndUber)
 				SetPropInt(self, "m_takedamage", 1)
 				TankExt.CombatTankRefreshSkin(self)
@@ -196,7 +196,7 @@ TankExt.NewTankScript("combattank*", {
 					sound_name = "player/invulnerable_off.wav"
 					filter_type = RECIPIENT_FILTER_GLOBAL
 				}
-				PrecacheSound(sndUberOff.sound_name)
+				TankExt.PrecacheSound(sndUberOff.sound_name)
 				EmitSoundEx(sndUberOff)
 				EntFireByHandle(self, "RunScriptCode", "SetPropInt(self, `m_takedamage`, 2)", 1, null, null)
 				EntFireByHandle(self, "RunScriptCode", "TankExt.CombatTankRefreshSkin(self)", 1, null, null)

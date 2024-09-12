@@ -9,8 +9,8 @@ foreach(k,v in UBERTANK_VALUES_TABLE)
 		ROOT[k] <- v
 
 PrecacheModel(UBERTANK_MODEL)
-PrecacheSound(UBERTANK_SND_UBER)
-PrecacheSound(UBERTANK_SND_UBER_OFF)
+TankExt.PrecacheSound(UBERTANK_SND_UBER)
+TankExt.PrecacheSound(UBERTANK_SND_UBER_OFF)
 
 TankExt.NewTankScript("ubertank*", {
 	OnSpawn = function(hTank, sName, hPath)

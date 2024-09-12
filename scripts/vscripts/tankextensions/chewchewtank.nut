@@ -6,7 +6,7 @@ local CHEWCHEWTANK_VALUES_TABLE = {
 	CHEWCHEWTANK_FUNCTION_CHOMP_SOUND = function()
 	{
 		local sSound = format(")mvm/melee_impacts/metal_gloves_hit_robo0%i.wav", RandomInt(1, 4))
-		PrecacheSound(sSound)
+		TankExt.PrecacheSound(sSound)
 		EmitSoundEx({
 			sound_name = sSound
 			sound_level = 85

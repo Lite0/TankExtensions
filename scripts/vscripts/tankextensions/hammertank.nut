@@ -26,11 +26,11 @@ foreach(k,v in HAMMERTANK_VALUES_TABLE)
 }
 __CollectGameEventCallbacks(HammerTankEvents)
 
-PrecacheSound("misc/halloween/strongman_fast_swing_01.wav")
-PrecacheSound("misc/halloween/strongman_fast_whoosh_01.wav")
-PrecacheSound("misc/halloween/strongman_fast_impact_01.wav")
-PrecacheSound("ambient/explosions/explode_1.wav")
-PrecacheSound("doors/vent_open2.wav")
+TankExt.PrecacheSound("misc/halloween/strongman_fast_swing_01.wav")
+TankExt.PrecacheSound("misc/halloween/strongman_fast_whoosh_01.wav")
+TankExt.PrecacheSound("misc/halloween/strongman_fast_impact_01.wav")
+TankExt.PrecacheSound("ambient/explosions/explode_1.wav")
+TankExt.PrecacheSound("doors/vent_open2.wav")
 
 TankExt.NewTankScript("hammertank", {
 	OnSpawn = function(hTank, sName, hPath)

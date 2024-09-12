@@ -8,8 +8,8 @@ foreach(k,v in PARATANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
 		ROOT[k] <- v
 
-PrecacheSound(PARATANK_SND_PARACHUTE_OPEN)
-PrecacheSound(PARATANK_SND_PARACHUTE_CLOSE)
+TankExt.PrecacheSound(PARATANK_SND_PARACHUTE_OPEN)
+TankExt.PrecacheSound(PARATANK_SND_PARACHUTE_CLOSE)
 
 TankExt.NewTankScript("paratank", {
 	OnSpawn = function(hTank, sName, hPath)

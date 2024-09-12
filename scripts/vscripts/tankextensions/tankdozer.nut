@@ -16,8 +16,8 @@ foreach(k,v in TANKDOZER_VALUES_TABLE)
 PrecacheModel(TANKDOZER_MODEL)
 PrecacheModel(TANKDOZER_MODEL_BREAKABLE1)
 PrecacheModel(TANKDOZER_MODEL_BREAKABLE2)
-PrecacheScriptSound(TANKDOZER_SND_BREAKABLE_HURT)
-PrecacheScriptSound(TANKDOZER_SND_SENTRY_SAPPED)
+TankExt.PrecacheSound(TANKDOZER_SND_BREAKABLE_HURT)
+TankExt.PrecacheSound(TANKDOZER_SND_SENTRY_SAPPED)
 
 TankExt.NewTankScript("tankdozer", {
 	OnSpawn = function(hTank, sName, hPath)

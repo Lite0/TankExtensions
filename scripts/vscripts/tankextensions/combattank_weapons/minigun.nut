@@ -17,10 +17,10 @@
 
 local COMBATTANK_VALUES_TABLE = {
 	COMBATTANK_MINIGUN_SPREAD_MULTIPLIER = 1
-	COMBATTANK_MINIGUN_SND_SPINUP        = ")mvm/giant_heavy/giant_heavy_gunwindup.wav"
-	COMBATTANK_MINIGUN_SND_SPINNING      = ")mvm/giant_heavy/giant_heavy_gunspin.wav"
-	COMBATTANK_MINIGUN_SND_SPINDOWN      = ")mvm/giant_heavy/giant_heavy_gunwinddown.wav"
-	COMBATTANK_MINIGUN_SND_FIRE          = ")mvm/giant_heavy/giant_heavy_gunfire.wav"
+	COMBATTANK_MINIGUN_SND_SPINUP        = "MVM.GiantHeavyGunWindUp"
+	COMBATTANK_MINIGUN_SND_SPINNING      = "MVM.GiantHeavyGunSpin"
+	COMBATTANK_MINIGUN_SND_SPINDOWN      = "MVM.GiantHeavyGunWindDown"
+	COMBATTANK_MINIGUN_SND_FIRE          = "MVM.GiantHeavyGunFire"
 	COMBATTANK_MINIGUN_PARTICLE_TRACER   = "bullet_tracer01"
 	COMBATTANK_MINIGUN_PARTICLE_MUZZLE   = "muzzle_minigun_constant"
 	COMBATTANK_MINIGUN_PARTICLE_CASING   = "eject_minigunbrass"
@@ -33,10 +33,10 @@ foreach(k,v in COMBATTANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
 		ROOT[k] <- v
 
-PrecacheSound(COMBATTANK_MINIGUN_SND_SPINUP)
-PrecacheSound(COMBATTANK_MINIGUN_SND_SPINNING)
-PrecacheSound(COMBATTANK_MINIGUN_SND_FIRE)
-PrecacheSound(COMBATTANK_MINIGUN_SND_SPINDOWN)
+TankExt.PrecacheSound(COMBATTANK_MINIGUN_SND_SPINUP)
+TankExt.PrecacheSound(COMBATTANK_MINIGUN_SND_SPINNING)
+TankExt.PrecacheSound(COMBATTANK_MINIGUN_SND_FIRE)
+TankExt.PrecacheSound(COMBATTANK_MINIGUN_SND_SPINDOWN)
 
 CombatTankWeapons.minigun <- {
 	Spawn = function(hTank)

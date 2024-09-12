@@ -10,7 +10,7 @@ foreach(k,v in FIRERINGTANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
 		ROOT[k] <- v
 
-PrecacheSound(FIRERINGTANK_SND_SPIN)
+TankExt.PrecacheSound(FIRERINGTANK_SND_SPIN)
 
 TankExt.NewTankScript("fireringtank", {
 	OnSpawn = function(hTank, sName, hPath)

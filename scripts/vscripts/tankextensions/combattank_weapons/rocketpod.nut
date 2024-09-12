@@ -37,7 +37,7 @@ foreach(k,v in COMBATTANK_VALUES_TABLE)
 		ROOT[k] <- v
 
 PrecacheModel(COMBATTANK_ROCKETPOD_ROCKET)
-PrecacheScriptSound(COMBATTANK_ROCKETPOD_SND_FIRE)
+TankExt.PrecacheSound(COMBATTANK_ROCKETPOD_SND_FIRE)
 
 CombatTankWeapons.rocketpod <- {
 	Spawn = function(hTank)

@@ -1,4 +1,4 @@
-PrecacheScriptSound("Building_Sentry.Damage")
+TankExt.PrecacheSound("Building_Sentry.Damage")
 bHasSapperLast <- false
 iHealthLast <- 0
 flNextDamage <- 0

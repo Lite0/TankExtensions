@@ -29,9 +29,9 @@ PrecacheModel(TARGETANK_MODEL_COLOR_TRACK_L)
 PrecacheModel(TARGETANK_MODEL_COLOR_TRACK_R)
 PrecacheModel(TARGETANK_MODEL_COLOR_BOMB)
 PrecacheModel(TARGETANK_MODEL_TARGE)
-PrecacheSound(TARGETANK_SND_WARNING)
-PrecacheSound(TARGETANK_SND_IMPACT)
-PrecacheScriptSound(TARGETANK_SND_CHARGE)
+TankExt.PrecacheSound(TARGETANK_SND_WARNING)
+TankExt.PrecacheSound(TARGETANK_SND_IMPACT)
+TankExt.PrecacheSound(TARGETANK_SND_CHARGE)
 
 TankExt.NewTankScript("targetank", {
 	OnSpawn = function(hTank, sName, hPath)

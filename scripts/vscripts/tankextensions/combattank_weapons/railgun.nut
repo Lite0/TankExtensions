@@ -19,9 +19,9 @@ foreach(k,v in COMBATTANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
 		ROOT[k] <- v
 
-PrecacheSound(COMBATTANK_RAILGUN_SND_CHARGE)
-PrecacheSound(COMBATTANK_RAILGUN_SND_FIRE1)
-PrecacheSound(COMBATTANK_RAILGUN_SND_FIRE2)
+TankExt.PrecacheSound(COMBATTANK_RAILGUN_SND_CHARGE)
+TankExt.PrecacheSound(COMBATTANK_RAILGUN_SND_FIRE1)
+TankExt.PrecacheSound(COMBATTANK_RAILGUN_SND_FIRE2)
 
 CombatTankWeapons.railgun <- {
 	Spawn = function(hTank)

@@ -47,17 +47,23 @@
 
 // bool TankExt.HasPathOutput(handle path_track)   // returns true if inputted path already has the output to apply scripts to tanks
 
+// void TankExt.PrecacheSound(string sound)   // precaches sounds but automatically detects if the inputted sound is a SoundScript or not
+
 // bool TankExt.ExistsInScope(scope, string)   // checks if a string exists inside a script scope, if it finds an instance then it checks if its valid and not null
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ::ROOT <- getroottable()
+::CONST <- getconsttable()
 ::MAX_CLIENTS <- MaxClients().tointeger()
 
 if(!("ConstantNamingConvention" in ROOT))
 	foreach(a, b in Constants)
 		foreach(k, v in b)
+		{
+			CONST[k] <- v != null ? v : 0
 			ROOT[k] <- v != null ? v : 0
+		}
 
 foreach(k, v in ::NetProps.getclass())
 	if(k != "IsValid" && !(k in ROOT))
@@ -137,15 +143,26 @@ local UNOFFICIAL_CONSTANTS = {
 }
 foreach(k,v in UNOFFICIAL_CONSTANTS)
 	if(!(k in ROOT))
-		ROOT[k] <- v 
+	{
+		CONST[k] <- v
+		ROOT[k] <- v
+	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ::TankExt <- {
+	function OnGameEvent_recalculate_holidays(_) { if(GetRoundState() == 3) { delete ::TankExt } }
+	function OnGameEvent_mvm_begin_wave(_)
+	{
+		for(local hPath; hPath = FindByClassname(hPath, "path_track");)
+			if(!TankExt.HasPathOutput(hPath))
+				AddOutput(hPath, "OnPass", "!activator", "RunScriptCode", "TankExt.RunTankScript.call(this)", -1, -1)
+	}
+
 	ValueOverrides = {}
 	TankScripts = {}
 	TankScriptsWild = {}
-	CreateLoopPaths = function(PathTable)
+	function CreateLoopPaths(PathTable)
 	{
 		Convars.SetValue("sig_etc_path_track_is_server_entity", 0)
 		foreach(sPathName, OriginArray in PathTable)
@@ -161,7 +178,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 					{ iLoopStart = i; break }
 			
 			if(iLoopStart == null)
-				return ClientPrint(null, 3, "\x07ffb2b2[ERROR] Looping path endpoint does not connect to itself")
+				return ClientPrint(null, 3, format("\x07ffb2b2[ERROR] Looping path (%s) endpoint does not connect to itself", sPathName))
 
 			local hPath1 = SpawnEntityFromTable("path_track", {
 				origin     = OriginArray[0]
@@ -189,7 +206,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			TankExt.AddThinkToEnt(hPath2, "PathThink")
 		}
 	}
-	CreatePaths = function(PathTable)
+	function CreatePaths(PathTable)
 	{
 		foreach(sPathName, OriginArray in PathTable)
 		{
@@ -218,7 +235,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			SpawnEntityGroupFromTable(PathGroup)
 		}
 	}
-	HasPathOutput = function(hPath)
+	function HasPathOutput(hPath)
 	{
 		local iTotalOutputs = GetNumElements(hPath, "OnPass")
 		local bHasOutput = false
@@ -231,7 +248,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		}
 		return bHasOutput
 	}
-	StartingPathNames = function(PathArray)
+	function StartingPathNames(PathArray)
 	{
 		foreach(sName in PathArray)
 		{
@@ -245,7 +262,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 				ClientPrint(null, 3, format("\x07FFD700[WARNING] Invalid path name \"%s\"", sName))
 		}
 	}
-	NewTankScript = function(sName, Table)
+	function NewTankScript(sName, Table)
 	{
 		sName = sName.tolower()
 		local bWild = sName[sName.len() - 1] == '*'
@@ -257,7 +274,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		else
 			TankExt.TankScripts[sName] <- Table
 	}
-	RunTankScript = function()
+	function RunTankScript()
 	{
 		if(!("self" in this) || self.GetEFlags() & EFL_NO_MEGAPHYSCANNON_RAGDOLL || self.GetClassname() != "tank_boss") return
 		local hPath = caller
@@ -376,7 +393,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 
 	//////////////////////// Utilities ////////////////////////
 
-	SetTankModel = function(hTank, Model)
+	function SetTankModel(hTank, Model)
 	{
 		local ApplyModel = function(hEntity, sModel)
 		{
@@ -404,7 +421,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 				ApplyModel(hChild, Model.Bomb)
 		}
 	}
-	SetTankColor = function(hTank, sColor)
+	function SetTankColor(hTank, sColor)
 	{
 		hTank.AcceptInput("Color", sColor, null, null)
 		for(local hChild = hTank.FirstMoveChild(); hChild != null; hChild = hChild.NextMovePeer())
@@ -416,7 +433,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 				hChild.AcceptInput("Color", sColor, null, null)
 		}
 	}
-	SetPathConnection = function(hPath1, hPath2, hPathAlt = null)
+	function SetPathConnection(hPath1, hPath2, hPathAlt = null)
 	{
 		if(hPath2)
 		{
@@ -433,13 +450,13 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		if(hPathAlt)
 			SetPropEntity(hPath1, "m_paltpath", hPathAlt)
 	}
-	SetValueOverrides = function(ValueTable)
+	function SetValueOverrides(ValueTable)
 	{
 		ValueOverrides = ValueTable
 		foreach(k,v in ValueTable)
 			ROOT[k] <- v 
 	}
-	SetDestroyCallback = function(entity, callback)
+	function SetDestroyCallback(entity, callback)
 	{
 		entity.ValidateScriptScope();
 		local scope = entity.GetScriptScope();
@@ -466,7 +483,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			})
 		);
 	}
-	SetParentArray = function(hChildren, hParent, sAttachment = null)
+	function SetParentArray(hChildren, hParent, sAttachment = null)
 	{
 		local iAttachment
 		if(sAttachment) iAttachment = hParent.LookupAttachment(sAttachment)
@@ -482,7 +499,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 				SetPropInt(hChild, "m_iParentAttachment", iAttachment)
 		}
 	}
-	VectorToQAngle = function(Vector)
+	function VectorToQAngle(Vector)
 	{
 		local yaw, pitch
 		if ( Vector.y == 0.0 && Vector.x == 0.0 )
@@ -504,7 +521,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		}
 		return ::QAngle(pitch, yaw, 0.0)
 	}
-	Clamp = function(value, low, high)
+	function Clamp(value, low, high)
 	{
 		if (value < low)
 			return low
@@ -512,12 +529,12 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 			return high
 		return value
 	}
-	SetEntityColor = function(entity, r, g, b, a)
+	function SetEntityColor(entity, r, g, b, a)
 	{
 		local color = (r) | (g << 8) | (b << 16) | (a << 24)
 		NetProps.SetPropInt(entity, "m_clrRender", color)
 	}
-	PathMaker = function(hPlayer)
+	function PathMaker(hPlayer)
 	{
 		Convars.SetValue("sig_etc_path_track_is_server_entity", 0)
 		hPlayer.ValidateScriptScope()
@@ -817,7 +834,7 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		}
 		TankExt.AddThinkToEnt(hPlayer, "PathMakerThink")
 	}
-	AddThinkToEnt = function(hEntity, sFunction) 
+	function AddThinkToEnt(hEntity, sFunction) 
 	{
 		local AddThink = @(ent, func) "_AddThinkToEnt" in ROOT ? ROOT._AddThinkToEnt(ent, func) : ROOT.AddThinkToEnt(ent, func)
 		if(hEntity.GetClassname() == "tank_boss")
@@ -851,9 +868,13 @@ foreach(k,v in UNOFFICIAL_CONSTANTS)
 		else
 			AddThink(hEntity, sFunction)
 	}
+	function PrecacheSound(sSound)
+	{
+		if(endswith(sSound, ".wav") || endswith(sSound, ".mp3"))
+			ROOT.PrecacheSound(sSound)
+		else
+			ROOT.PrecacheScriptSound(sSound)
+	}
 	ExistsInScope = @(scope, string) string in scope && (typeof(scope[string]) == "instance" || typeof(scope[string]) == "null" ? (scope[string] != null && scope[string].IsValid()) : true)
 }
-
-for(local hPath; hPath = FindByClassname(hPath, "path_track");)
-	if(!TankExt.HasPathOutput(hPath))
-		AddOutput(hPath, "OnPass", "!activator", "RunScriptCode", "TankExt.RunTankScript.call(this)", -1, -1)
+__CollectGameEventCallbacks(TankExt)

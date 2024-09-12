@@ -13,8 +13,8 @@ foreach(k,v in STICKYTANK_VALUES_TABLE)
 		ROOT[k] <- v
 
 PrecacheModel(STICKYTANK_PROJECTILE_MODEL)
-PrecacheSound(STICKYTANK_SND_SHOOT)
-PrecacheSound(STICKYTANK_SND_SHOOT_CRIT)
+TankExt.PrecacheSound(STICKYTANK_SND_SHOOT)
+TankExt.PrecacheSound(STICKYTANK_SND_SHOOT_CRIT)
 
 TankExt.NewTankScript("stickytank", {
 	OnSpawn = function(hTank, sName, hPath)

@@ -9,7 +9,7 @@ local DRILLTANK_VALUES_TABLE = {
 	DRILLTANK_FUNCTION_SOUND_HURT    = function()
 	{
 		local sSound = format(")ambient/sawblade_impact%i.wav", RandomInt(1, 2))
-		PrecacheSound(sSound)
+		TankExt.PrecacheSound(sSound)
 		EmitSoundEx({
 			sound_name = sSound
 			sound_level = 85
@@ -23,7 +23,7 @@ foreach(k,v in DRILLTANK_VALUES_TABLE)
 	if(!(k in TankExt.ValueOverrides))
 		ROOT[k] <- v
 
-PrecacheSound(DRILLTANK_SOUND_SPIN)
+TankExt.PrecacheSound(DRILLTANK_SOUND_SPIN)
 
 ::DrillTankEvents <- {
 	OnGameEvent_recalculate_holidays = function(_) { if(GetRoundState() == 3) delete ::DrillTankEvents }

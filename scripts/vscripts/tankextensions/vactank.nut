@@ -10,7 +10,7 @@ foreach(k,v in VACTANK_VALUES_TABLE)
 		ROOT[k] <- v
 
 PrecacheModel(VACTANK_MODEL)
-PrecacheSound(VACTANK_SND_DEPLOY)
+TankExt.PrecacheSound(VACTANK_SND_DEPLOY)
 
 ::VacTankEvents <- {
 	OnGameEvent_recalculate_holidays = function(_) { if(GetRoundState() == 3) delete ::VacTankEvents }
