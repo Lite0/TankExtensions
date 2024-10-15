@@ -1,8 +1,8 @@
 "VertexLitGeneric"
 {
-	"$baseTexture" "models\bots\boss_bot\combat_tank\combat_tank_railgun_reactor_red.vtf"
+	"$baseTexture" "models/bots/boss_bot/combat_tank/combat_tank_railgun_reactor_red"
 	$selfillum 1
-	$selfillummask "models\bots\boss_bot\combat_tank\combat_tank_railgun_reactor_illum.vtf"
+	$selfillummask "models/bots/boss_bot/combat_tank/combat_tank_railgun_reactor_illum"
 	"$surfaceprop"	"default"
 	"$basemapalphaphongmask" 1
 	//phong properties

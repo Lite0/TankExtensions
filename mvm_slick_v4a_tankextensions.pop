@@ -16,8 +16,8 @@ WaveSchedule
 		}
 		InitWaveOutput
 		{
-			Target wave_start_relay
-			Action runscriptcode
+			Target bignet
+			Action RunScriptCode
 			Param "
 IncludeScript(`tankextensions_main`, getroottable())
 
@@ -35,6 +35,7 @@ IncludeScript(`tankextensions/combattank`, getroottable())
 IncludeScript(`tankextensions/combattank_weapons/minigun`, getroottable())
 IncludeScript(`tankextensions/combattank_weapons/rocketpod`, getroottable())
 
+// Note that creating tank paths is NOT required to use the any of the custom tanks
 TankExt.CreateLoopPaths({
 	tank_loop = [
 		Vector(-1536, 512, -64)
@@ -58,8 +59,7 @@ TankExt.CreatePaths({
 		Vector(1024, 0, -64)
 		Vector(-1104, 0, -64)
 	]
-})
-"
+})"
 		}
 		DoneOutput
 		{

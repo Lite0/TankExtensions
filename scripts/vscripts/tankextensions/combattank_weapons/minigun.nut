@@ -146,6 +146,7 @@ CombatTankWeapons.minigun <- {
 							SetPropBool(hParticleTracer, "m_bForcePurgeFixedupStrings", true)
 							TankExt.SetParentArray([hParticleTracer], self, iBarrel ? "barrel_1" : "barrel_2")
 							local hTracerTarget = SpawnEntityFromTable("info_target", { origin = Trace.endpos, spawnflags = 0x01 })
+							hTracerTarget.AddEFlags(EFL_IN_SKYBOX | EFL_FORCE_CHECK_TRANSMIT)
 							SetPropBool(hTracerTarget, "m_bForcePurgeFixedupStrings", true)
 							SetPropEntityArray(hParticleTracer, "m_hControlPointEnts", hTracerTarget, 0)
 							EntFireByHandle(hParticleTracer, "Kill", null, 0.066, null, null)

@@ -254,7 +254,8 @@ TankExt.NewTankScript("combattank*", {
 						hEnt.IsAlive() &&
 						bEyeTrace &&
 						flTargetDist > flEntDist &&
-						(sClassname == "player" ? !TankExt.IsPlayerStealthedOrDisguised(hEnt) : true)
+						(sClassname == "player" ? !TankExt.IsPlayerStealthedOrDisguised(hEnt) : true) &&
+						!(hEnt.GetFlags() & FL_NOTARGET)
 					)
 					{
 						hEnemy = hEnt
