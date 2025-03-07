@@ -1,27 +1,4 @@
-<style>
-	p.credits {
-		font-style: italic;
-		font-size: 90%;
-		color: rgb(127, 127, 127);
-		margin: 0;
-	}
-	img.tank {
-		width: 100%;
-		max-width: 250px;
-	}
-	.paramvalue {
-		text-align: center;
-		font-weight: bold;
-	}
-	.paramzero {
-		text-align: center;
-		color: rgb(127, 127, 127);
-	}
-</style>
-
-<img src="images/logo.png" style="display: block; margin-left: auto; margin-right: auto">
-<p style="text-align: center; font-weight: bold">Currently at 19 Tank Types<br>
-
+![](images/logo.png)
 ## ![Usage](images/usage.png)
 Include the tankextensions_main script file and the tank script files of your choosing. This is done through a RunScriptCode output on bignet or added to your own mission script file if you have one.<br>
 ```wren
@@ -64,8 +41,8 @@ This list provides details on what can go into a tank's Name keyvalue.<br>
 **Quick Keyvalues** allow for making slight modifications to the tank, the same keyvalues as the NewTankType function. The beginning of the keyvalues is denoted with `$`, the values of the keys separated with `|`, and the keyvalues themselves separated with `^`. `tankName$color|0 0 0^teamnum|2^scale|0.5` would result in a black tank on red team at half scale.<br>
 Here's a tank name with everything combined, including when using Tank Combiner, `Name "paratank^combattank_nolaser|minigun|rocketpod$teamnum|2^noscreenshake|1"`<br>
 **ScriptFunctions** can be ran by firing a CallScriptFunction input on the tank with the param being the script function name.
-<table style="width=100%">
-	<tr style="position:sticky; z-index:10; top:0">
+<table>
+	<tr>
 		<th>Script File</th>
 		<th>Preview</th>
 		<th>Tank Names</th>
@@ -76,7 +53,7 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 	</tr>
 	<tr>
 		<td>bannertank.nut</td>
-		<td><img class="tank" src="images/tanks/bannertank.webp"></img></td>
+		<td><img src="images/tanks/bannertank.webp"></img></td>
 		<td>
 			<code>bannertank</code>
 		</td>
@@ -86,7 +63,7 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 			<code>_conch</code><br>
 			<code>_noselfeffect</code>
 		</td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td>
 			AddBannerBackup<br>
 			AddBannerBuff<br>
@@ -101,26 +78,26 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 	</tr>
 	<tr>
 		<td>blimp.nut</td>
-		<td><img class="tank" src="images/tanks/blimp.webp"></img></td>
+		<td><img src="images/tanks/blimp.webp"></img></td>
 		<td>
 			<code>blimp</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Same as a normal tank but it traverses the sky.
-			<p class="credits">Blimp model by <a href="https://steamcommunity.com/profiles/76561198058809573">Glitch</a></p>
+			<p>Blimp model by <a href="https://steamcommunity.com/profiles/76561198058809573">Glitch</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>chewchewtank.nut</td>
-		<td><img class="tank" src="images/tanks/chewchewtank.webp"></img></td>
+		<td><img src="images/tanks/chewchewtank.webp"></img></td>
 		<td>
 			<code>chewchewtank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Li'l Chew Chew from pl_frontier but in tank form. Each bite deals 1000 damage and does not effect giants.
@@ -128,7 +105,7 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 	</tr>
 	<tr>
 		<td>combattank.nut</td>
-		<td><img class="tank" src="images/tanks/combattank.webp"></img></td>
+		<td><img src="images/tanks/combattank.webp"></img></td>
 		<td>
 			<code>combattank</code>
 		</td>
@@ -160,31 +137,31 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 				</tr>
 			</table>
 			<code>ToggleUber</code> makes the tank invulnerable until ToggleUber is used again. The <code>_nolaser</code> suffix prevents the laser beam from appearing when detecting an enemy.
-			<p class="credits">Tank and weapon models by <a href="https://steamcommunity.com/profiles/76561198070293827">Charlie</a></p>
+			<p>Tank and weapon models by <a href="https://steamcommunity.com/profiles/76561198070293827">Charlie</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>drilltank.nut</td>
-		<td><img class="tank" src="images/tanks/drilltank.webp"></img></td>
+		<td><img src="images/tanks/drilltank.webp"></img></td>
 		<td>
 			<code>drilltank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Adds a big drill at the front of the tank. Deals 50 damage to the victim every 0.33 seconds (150 dps) that applies bleed and 75% movement stun for 1 second. Deals no damage while in the bomb deploy sequence.
-			<p class="credits">Drill model by <a href="https://steamcommunity.com/profiles/76561198139139265">KrazyZark</a></p>
+			<p>Drill model by <a href="https://steamcommunity.com/profiles/76561198139139265">KrazyZark</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>exampletank.nut</td>
-		<td><img class="tank" src="images/tanks/exampletank.webp"></img></td>
+		<td><img src="images/tanks/exampletank.webp"></img></td>
 		<td>
 			<code>exampletank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Used to show the basics in making a tank type
@@ -192,21 +169,21 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 	</tr>
 	<tr>
 		<td>fireringtank.nut</td>
-		<td><img class="tank" src="images/tanks/fireringtank.webp"></img></td>
+		<td><img src="images/tanks/fireringtank.webp"></img></td>
 		<td>
 			<code>fireringtank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Every 0.5 seconds will activate a trigger around the base of the tank that ignites enemies.
-			<p class="credits">Concept by <a href="https://steamcommunity.com/profiles/76561198158093750">Bazooks</a></p>
+			<p>Concept by <a href="https://steamcommunity.com/profiles/76561198158093750">Bazooks</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>frontlinecart.nut</td>
-		<td><img class="tank" src="images/tanks/frontlinecart.webp"></img></td>
+		<td><img src="images/tanks/frontlinecart.webp"></img></td>
 		<td>
 			<code>frontlinecart</code>
 		</td>
@@ -217,26 +194,26 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 		<td></td>
 		<td>
 			Small mobile turret that shoots a chosen projectile at 5 angles. Allows 2 parameters of: <code>rocket</code>, <code>grenade</code>, <code>jarate</code>, <code>milk</code>, <code>gas</code>. First parameter is the normal projectile type and the second parameter is the close range projectile type. The second parameter can be left blank to not switch to close ranged projectiles. The <code>_crit</code> suffix makes all projectiles crit.
-			<p class="credits">Cart model from the <a href="https://frontline.tf2maps.net">Frontline Supply Drop</a></p>
+			<p>Cart model from the <a href="https://frontline.tf2maps.net">Frontline Supply Drop</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>hammertank.nut</td>
-		<td><img class="tank" src="images/tanks/hammertank.webp"></img></td>
+		<td><img src="images/tanks/hammertank.webp"></img></td>
 		<td>
 			<code>hammertank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Adds a giant Necro Smasher onto the tank. Activates when an enemy is within a 256hu radius from its smashing position. Deals 2500 damage to enemies within a 128hu radius or pushes enemies away within a 384hu radius upon smashing. Has a 2.6 second cooldown after smashing.
-			<p class="credits">Concept from <a href="https://steamcommunity.com/profiles/76561198000559913">Sntr</a>'s <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2710939862">Lost Valley</a></p>
+			<p>Concept from <a href="https://steamcommunity.com/profiles/76561198000559913">Sntr</a>'s <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2710939862">Lost Valley</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>painttank.nut</td>
-		<td><img class="tank" src="images/tanks/painttank.webp"></img></td>
+		<td><img src="images/tanks/painttank.webp"></img></td>
 		<td>
 			<code>painttank</code>
 		</td>
@@ -245,31 +222,31 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 		<td></td>
 		<td>
 			A tank model that allows for more colors much like adding paints for hats. First parameter is the color. (i.e. <code>"painttank|255 127 0"</code> results in an orange tank)
-			<p class="credits">Tank model by <a href="https://steamcommunity.com/profiles/76561198036209556">CTriggerHurt</a></p>
+			<p>Tank model by <a href="https://steamcommunity.com/profiles/76561198036209556">CTriggerHurt</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>paratank.nut</td>
-		<td><img class="tank" src="images/tanks/paratank.webp"></img></td>
+		<td><img src="images/tanks/paratank.webp"></img></td>
 		<td>
 			<code>paratank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Adds a parachute to the tank. If there's no floor underneath the tank then it will move towards path nodes similarly to a blimp until there's ground again. This will usually require a custom tank path so the tank's descent doesn't look unnatural.
-			<p class="credits">Parachute model from <a href="https://steamcommunity.com/profiles/76561198041314432">PenolAkushari</a>'s <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1858986178">Silent Sky</a></p>
+			<p>Parachute model from <a href="https://steamcommunity.com/profiles/76561198041314432">PenolAkushari</a>'s <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1858986178">Silent Sky</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>redtank.nut</td>
-		<td><img class="tank" src="images/tanks/redtank.webp"></img></td>
+		<td><img src="images/tanks/redtank.webp"></img></td>
 		<td>
 			<code>redtank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Changes the tanks team to red and swaps the tank model with a red textured version. Useful when combined with other tank types that don't have custom models.
@@ -277,12 +254,12 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 	</tr>
 	<tr>
 		<td>sentrytank.nut</td>
-		<td><img class="tank" src="images/tanks/sentrytank.webp"></img></td>
+		<td><img src="images/tanks/sentrytank.webp"></img></td>
 		<td>
 			<code>sentrytank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Adds 2 invincible level 3 sentries ontop of the tank. The sentries cannot attack enemies that are directly beside the tank. Sappers destroy themselves after 8 seconds if placed on either of the sentries, Red-Tape Recorder does not degrade their levels.
@@ -290,66 +267,66 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 	</tr>
 	<tr>
 		<td>stickytank.nut</td>
-		<td><img class="tank" src="images/tanks/stickytank.webp"></img></td>
+		<td><img src="images/tanks/stickytank.webp"></img></td>
 		<td>
 			<code>stickytank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Fires a barrage of non-crit and crit stickies in front of the tank. Stickies detonate 7 seconds after the tank began firing.
-			<p class="credits">Concept by <a href="https://steamcommunity.com/profiles/76561197965468138">Hell-met</a><br>Tank turret model from the <a href="https://frontline.tf2maps.net">Frontline Supply Drop</a></p>
+			<p>Concept by <a href="https://steamcommunity.com/profiles/76561197965468138">Hell-met</a><br>Tank turret model from the <a href="https://frontline.tf2maps.net">Frontline Supply Drop</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>tankdozer.nut</td>
-		<td><img class="tank" src="images/tanks/tankdozer.webp"></img></td>
+		<td><img src="images/tanks/tankdozer.webp"></img></td>
 		<td>
 			<code>tankdozer</code>
 		</td>
 		<td>
 			<code>_nosentry</code>
 		</td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			An "armored" tank with 4 breakable sides and a big level 2 sentry ontop. The breakables have 2000 health each and the sentry has 9000 health. Players can get stuck inside of the tanks armor then crushed if they get too close. Sappers destroy themselves after 10 seconds when placed but deal extra damage to the sentry (500 health across 10 seconds.)
-			<p class="credits">Concept by <a href="https://steamcommunity.com/profiles/76561198000559913">Sntr</a>'s <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1797845264">Rust Valley</a></p>
+			<p>Concept by <a href="https://steamcommunity.com/profiles/76561198000559913">Sntr</a>'s <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1797845264">Rust Valley</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>targetank.nut</td>
-		<td><img class="tank" src="images/tanks/targetank.webp"></img></td>
+		<td><img src="images/tanks/targetank.webp"></img></td>
 		<td>
 			<code>targetank</code><br>
 			<code>targetank_color</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Charges similarly to demo's shields. The tank slows down to 15hu/s on the first 2 seconds then speeds up to 300hu/s for 3 seconds. Has a recharge duration of 10 seconds. Hitting an enemy deals 75 damage and high knockback. <code>targetank_color</code> sets the model to the PaintTank, the color reflects the tank's current charge meter (oranger when about to start a charge and redder after completing the charge.)
-			<p class="credits">Concept by <a href="https://steamcommunity.com/profiles/76561198024198604">PDA Expert</a></p>
+			<p>Concept by <a href="https://steamcommunity.com/profiles/76561198024198604">PDA Expert</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>teletank.nut</td>
-		<td><img class="tank" src="images/tanks/teletank.webp"></img></td>
+		<td><img src="images/tanks/teletank.webp"></img></td>
 		<td>
 			<code>teletank</code>
 		</td>
 		<td></td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Places a fake teleporter ontop of the tank that teleports spawned bots that have the <code>bot_teletank</code> tag. Teleported bots will spawn with 5 seconds of ubercharge.
-			<p class="credits">Concept by <a href="https://steamcommunity.com/profiles/76561198115147053">dexc34</a></p>
+			<p>Concept by <a href="https://steamcommunity.com/profiles/76561198115147053">dexc34</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>ubertank.nut</td>
-		<td><img class="tank" src="images/tanks/ubertank.webp"></img></td>
+		<td><img src="images/tanks/ubertank.webp"></img></td>
 		<td>
 			<code>ubertank</code>
 		</td>
@@ -360,12 +337,12 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 		</td>
 		<td>
 			Has the ability to become invulnerable for a defined amount of time. First parameter is the amount of time after spawning until the tank becomes ubered and the second parameter is the duration of the uber. Setting either parameter to -1 will disable that parameter's functionality. <code>ToggleUber</code> flips the uber state, if a duration is set then it will automatically toggle back off after the given time.
-			<p class="credits">Tank model by <a href="https://steamcommunity.com/profiles/76561198158093750">Bazooks</a></p>
+			<p>Tank model by <a href="https://steamcommunity.com/profiles/76561198158093750">Bazooks</a></p>
 		</td>
 	</tr>
 	<tr>
 		<td>vactank.nut</td>
-		<td><img class="tank" src="images/tanks/vactank.webp"></img></td>
+		<td><img src="images/tanks/vactank.webp"></img></td>
 		<td>
 			<code>vactank</code>
 		</td>
@@ -374,11 +351,11 @@ Here's a tank name with everything combined, including when using Tank Combiner,
 			<code>_blast</code><br>
 			<code>_fire</code><br>
 		</td>
-		<td class="paramzero">0</td>
+		<td>0</td>
 		<td></td>
 		<td>
 			Adds any combination of the Vaccinator's uber effects to the tank. Adding a suffix will resist the chosen damage type.
-			<p class="credits">Vaccinator bubble model by <a href="https://steamcommunity.com/profiles/76561198054722423">Tumby</a> and <a href="https://steamcommunity.com/profiles/76561198020560509">Izotope</a></p>
+			<p>Vaccinator bubble model by <a href="https://steamcommunity.com/profiles/76561198054722423">Tumby</a> and <a href="https://steamcommunity.com/profiles/76561198020560509">Izotope</a></p>
 		</td>
 	</tr>
 </table>
@@ -417,7 +394,7 @@ Always prepend <code>TankExt.</code> to any of these functions when using them. 
 		<td><code>float ApproachAngle(float <i>target</i>, float <i>input</i>, float <i>speed</i>)</code></td>
 		<td>
 			Rotates the inputted value by the speed value towards the target value. The returned angle value is normalized.
-			<p class="credits">From the <a href="https://developer.valvesoftware.com/wiki/Team_Fortress_2/Scripting/VScript_Examples">TF2 VScript Examples</a> page</p>
+			<p>From the <a href="https://developer.valvesoftware.com/wiki/Team_Fortress_2/Scripting/VScript_Examples">TF2 VScript Examples</a> page</p>
 		</td>
 	</tr>
 	<tr>
@@ -601,7 +578,7 @@ Always prepend <code>TankExt.</code> to any of these functions when using them. 
 		<td><code>float NormalizeAngle(float <i>angle</i>)</code></td>
 		<td>
 			Converts an angle value to be within the usual boundaries of an angle. The physical angle will not change. -180 < x ≤ 180
-			<p class="credits">From the <a href="https://developer.valvesoftware.com/wiki/Team_Fortress_2/Scripting/VScript_Examples">TF2 VScript Examples</a> page</p>
+			<p>From the <a href="https://developer.valvesoftware.com/wiki/Team_Fortress_2/Scripting/VScript_Examples">TF2 VScript Examples</a> page</p>
 		</td>
 	</tr>
 	<tr>
@@ -630,7 +607,7 @@ Always prepend <code>TankExt.</code> to any of these functions when using them. 
 		<td><code>void SetDestroyCallback(handle <i>entity</i>, handle <i>callback</i>)</code></td>
 		<td>
 			When the inputted entity dies, calls the inputted function.
-			<p class="credits">From the <a href="https://developer.valvesoftware.com/wiki/Team_Fortress_2/Scripting/Script_Functions">TF2 Script Functions</a> page</p>
+			<p>From the <a href="https://developer.valvesoftware.com/wiki/Team_Fortress_2/Scripting/Script_Functions">TF2 Script Functions</a> page</p>
 		</td>
 	</tr>
 	<tr>
@@ -638,7 +615,7 @@ Always prepend <code>TankExt.</code> to any of these functions when using them. 
 		<td><code>void SetEntityColor(handle <i>entity</i>, int <i>r</i>, int <i>g</i>, int <i>b</i>, int <i>a</i>)</code></td>
 		<td>
 			Sets the entity's color and alpha. Alternatively, use a color/alpha input via <code>AcceptInput</code> to achieve the same effect.
-			<p class="credits">From the <a href="https://developer.valvesoftware.com/wiki/Source_SDK_Base_2013/Scripting/VScript_Examples">SDK VScript Examples</a> page</p>
+			<p>From the <a href="https://developer.valvesoftware.com/wiki/Source_SDK_Base_2013/Scripting/VScript_Examples">SDK VScript Examples</a> page</p>
 		</td>
 	</tr>
 	<tr>
@@ -688,7 +665,7 @@ Always prepend <code>TankExt.</code> to any of these functions when using them. 
 		<td><code>QAngle VectorAngles(Vector <i>input</i>)</code></td>
 		<td>
 			Converts the Vector to a QAngle. The QAngle is the angle towards the Vector.
-			<p class="credits">From the <a href="https://developer.valvesoftware.com/wiki/Team_Fortress_2/Scripting/VScript_Examples">TF2 VScript Examples</a> page</p>
+			<p>From the <a href="https://developer.valvesoftware.com/wiki/Team_Fortress_2/Scripting/VScript_Examples">TF2 VScript Examples</a> page</p>
 		</td>
 	</tr>
 </table>
