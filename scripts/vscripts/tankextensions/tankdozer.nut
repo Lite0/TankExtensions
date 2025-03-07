@@ -4,8 +4,8 @@ local TANKDOZER_VALUES_TABLE = {
 	TANKDOZER_SENTRY_SCALE          = 1.6
 	TANKDOZER_SENTRY_HEALTH         = 9000
 	TANKDOZER_SENTRY_DEFAULTUPGRADE = 1.6
-	TANKDOZER_MODEL_BREAKABLE2      = "models/props_mvm/tankdozer_breakable2.mdl"
 	TANKDOZER_MODEL_BREAKABLE1      = "models/props_mvm/tankdozer_breakable1.mdl"
+	TANKDOZER_MODEL_BREAKABLE2      = "models/props_mvm/tankdozer_breakable2.mdl"
 	TANKDOZER_MODEL                 = "models/props_mvm/tankdozer.mdl"
 	TANKDOZER_BREAKABLE_HEALTH      = 2000
 }
@@ -19,61 +19,72 @@ PrecacheModel(TANKDOZER_MODEL_BREAKABLE2)
 TankExt.PrecacheSound(TANKDOZER_SND_BREAKABLE_HURT)
 TankExt.PrecacheSound(TANKDOZER_SND_SENTRY_SAPPED)
 
-TankExt.NewTankScript("tankdozer", {
-	OnSpawn = function(hTank, sName, hPath)
+TankExt.NewTankType("tankdozer*", {
+	function OnSpawn()
 	{
 		local arrayModels = []
-		local SpawnBreakable = @(vecOrigin, sModel) SpawnEntityFromTable("prop_dynamic", { origin = vecOrigin, model = sModel, solid = 6, "OnTakeDamage" : "!selfRunScriptCodeEmitSoundOn(TANKDOZER_SND_BREAKABLE_HURT,self)-1-1" })
+		local SpawnBreakable = @(vecOrigin, sModel) TankExt.SpawnEntityFromTableFast("prop_dynamic", { origin = vecOrigin, model = sModel, solid = SOLID_VPHYSICS, "OnTakeDamage" : "!selfRunScriptCodeEmitSoundOn(TANKDOZER_SND_BREAKABLE_HURT,self)-1-1" })
 
 		arrayModels.append(SpawnBreakable(Vector(8, 85, 121), TANKDOZER_MODEL_BREAKABLE1))
 		arrayModels.append(SpawnBreakable(Vector(8, -85, 121), TANKDOZER_MODEL_BREAKABLE1))
 		arrayModels.append(SpawnBreakable(Vector(58, 85, 62), TANKDOZER_MODEL_BREAKABLE2))
 		arrayModels.append(SpawnBreakable(Vector(58, -85, 62), TANKDOZER_MODEL_BREAKABLE2))
 		foreach(hBreakable in arrayModels)
-			SetPropInt(hBreakable, "m_takedamage", 2), hBreakable.SetHealth(TANKDOZER_BREAKABLE_HEALTH)
+			SetPropInt(hBreakable, "m_takedamage", DAMAGE_YES), hBreakable.SetHealth(TANKDOZER_BREAKABLE_HEALTH)
 
-		arrayModels.append(SpawnEntityFromTable("prop_dynamic", { model = TANKDOZER_MODEL, solid = 6 }))
-		local hSentry = SpawnEntityFromTable("obj_sentrygun", { origin = "-37 0 176", angles = hTank.GetAbsAngles(), defaultupgrade = TANKDOZER_SENTRY_DEFAULTUPGRADE, modelscale = TANKDOZER_SENTRY_SCALE, spawnflags = 8, teamnum = hTank.GetTeam() })
-		hSentry.SetLocalAngles(QAngle())
-		hSentry.AcceptInput("SetHealth", TANKDOZER_SENTRY_HEALTH.tostring(), null, null)
-		arrayModels.append(hSentry)
-		
-		TankExt.SetParentArray(arrayModels, hTank)
+		arrayModels.append(TankExt.SpawnEntityFromTableFast("prop_dynamic", { model = TANKDOZER_MODEL, solid = SOLID_VPHYSICS }))
+		foreach(hEnt in arrayModels) hEnt.AddEFlags(EFL_DONTBLOCKLOS)
 
-		// prevents sapper/rtr cheese
-		hSentry.ValidateScriptScope()
-		local hSentry_scope = hSentry.GetScriptScope()
-		hSentry_scope.hSapperBuilder <- null
-		hSentry_scope.bHasSapperLast <- false
-		hSentry_scope.iHealthLast <- 0
-		hSentry_scope.flNextDamage <- 0
-		hSentry_scope.SentryThink <- function()
+		local bSentry = sTankName.find("_nosentry") == null
+		if(bSentry)
 		{
-			if(!self.IsValid()) return
-			local bHasSapper = GetPropBool(self, "m_bHasSapper")
-			if(bHasSapper)
+			self.RemoveEFlags(EFL_DONTBLOCKLOS)
+			local hSentry = SpawnEntityFromTable("obj_sentrygun", { origin = "-37 0 176", angles = self.GetAbsAngles(), defaultupgrade = TANKDOZER_SENTRY_DEFAULTUPGRADE, modelscale = TANKDOZER_SENTRY_SCALE, spawnflags = 8, teamnum = self.GetTeam() })
+			hSentry.SetLocalAngles(QAngle())
+			hSentry.AcceptInput("SetHealth", TANKDOZER_SENTRY_HEALTH.tostring(), null, null)
+			arrayModels.append(hSentry)
+
+			// prevents sapper/rtr cheese
+			local hSapperBuilder = null
+			local bHasSapperLast = false
+			local iHealthLast    = 0
+			local flNextDamage   = 0
+			hSentry.ValidateScriptScope()
+			hSentry.GetScriptScope().SentryThink <- function()
 			{
-				local hSapper = self.FirstMoveChild()
-				if(!bHasSapperLast)
+				if(!self.IsValid()) return
+				EmitSoundEx({
+					sound_name = "misc/null.wav"
+					flags      = SND_CHANGE_PITCH | SND_IGNORE_NAME
+					pitch      = 95
+					entity     = self
+				})
+				local bHasSapper = GetPropBool(self, "m_bHasSapper")
+				if(bHasSapper)
 				{
-					EmitSoundOn(TANKDOZER_SND_SENTRY_SAPPED, self)
-					hSapperBuilder = GetPropEntity(hSapper, "m_hBuilder")
-					SetPropEntity(hSapper, "m_hBuilder", null)
-					EntFireByHandle(self, "SetHealth", iHealthLast.tostring(), 0.1, null, null)
-					EntFireByHandle(hSapper, "RemoveHealth", hSapper.GetHealth().tostring(), 10, null, null)
+					local hSapper = self.FirstMoveChild()
+					if(!bHasSapperLast)
+					{
+						EmitSoundOn(TANKDOZER_SND_SENTRY_SAPPED, self)
+						hSapperBuilder = GetPropEntity(hSapper, "m_hBuilder")
+						SetPropEntity(hSapper, "m_hBuilder", null)
+						EntFireByHandle(self, "SetHealth", iHealthLast.tostring(), 0.1, null, null)
+						EntFireByHandle(hSapper, "RemoveHealth", hSapper.GetHealth().tostring(), 10, null, null)
+					}
+					// to make sappers still useful
+					local flTime = Time()
+					if(flTime >= flNextDamage)
+					{
+						flNextDamage = flTime + 0.4
+						self.TakeDamage(20, DMG_GENERIC, hSapperBuilder)
+					}
 				}
-				// to make sappers still useful
-				local flTime = Time()
-				if(flTime >= flNextDamage)
-				{
-					flNextDamage = flTime + 0.4
-					self.TakeDamage(20, DMG_GENERIC, hSapperBuilder)
-				}
+				iHealthLast = self.GetHealth()
+				bHasSapperLast = bHasSapper
+				return -1
 			}
-			iHealthLast = self.GetHealth()
-			bHasSapperLast = bHasSapper
-			return -1
+			TankExt.AddThinkToEnt(hSentry, "SentryThink")
 		}
-		TankExt.AddThinkToEnt(hSentry, "SentryThink")
+		TankExt.SetParentArray(arrayModels, self)
 	}
 })
