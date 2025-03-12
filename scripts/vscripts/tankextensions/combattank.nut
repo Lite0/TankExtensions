@@ -78,10 +78,11 @@ TankExt.NewTankType("combattank*", {
 		local hTargetLast   = null
 		local flRotateSpeed = COMBATTANK_ROTATE_SPEED_DEFAULT
 		local iLaser        = self.LookupAttachment("laser_origin")
-		vecMount       <- null
-		vecTarget <- null
-		hTarget        <- null
-		flAngleDist    <- -1
+		vecMount   <- null
+		vecTarget  <- null
+		hTarget    <- null
+		flDist     <- COMBATTANK_MAX_RANGE
+		flAngleDot <- -1
 
 		LaserTrace <- {}
 
@@ -120,12 +121,20 @@ TankExt.NewTankType("combattank*", {
 			{
 				local WeaponTable = TankExt.CombatTankWeapons[sParams[i]]
 				local hWeapon
+
 				if("Model" in WeaponTable)
 				{
 					hWeapon = TankExt.SpawnEntityFromTableFast("prop_dynamic", { model = WeaponTable.Model, defaultanim = ("DefaultAnim" in WeaponTable) ? WeaponTable.DefaultAnim : "" })
 					hWeapon.SetSkin(bBlueTeam ? 1 : 0)
 					TankExt.SetParentArray([hWeapon], self, i == 1 ? "weapon_r" : "weapon_l")
 				}
+				else if("SpawnModel" in WeaponTable)
+				{
+					hWeapon = WeaponTable.SpawnModel()
+					hWeapon.SetSkin(bBlueTeam ? 1 : 0)
+					TankExt.SetParentArray([hWeapon], self, i == 1 ? "weapon_r" : "weapon_l")
+				}
+
 				if("OnSpawn" in WeaponTable)
 				{
 					hWeapon.ValidateScriptScope()
@@ -134,6 +143,7 @@ TankExt.NewTankType("combattank*", {
 					hWeapon_scope.hTank_scope <- this
 					WeaponTable.OnSpawn.call(hWeapon_scope)
 				}
+
 				if("OnDeath" in WeaponTable)
 					TankExt.SetDestroyCallback(hWeapon, WeaponTable.OnDeath)
 			}
@@ -200,19 +210,31 @@ TankExt.NewTankType("combattank*", {
 				foreach(hEnt, iSkin in LastSkins) if(hEnt.IsValid()) hEnt.AcceptInput("Color", sColor, null, null)
 			}
 
-			vecMount       = self.GetAttachmentOrigin(self.LookupAttachment("weapon_l"))
-			hTarget        = null
+			vecMount  = self.GetAttachmentOrigin(self.LookupAttachment("weapon_l"))
 			vecTarget = null
-			foreach(sClassname in [ "player", "obj_sentrygun", "obj_dispenser", "obj_teleporter", "tank_boss", "merasmus", "headless_hatman", "eyeball_boss", "tf_zombie" ])
+			hTarget   = null
+			flDist    = COMBATTANK_MAX_RANGE
+
+			local hForceTarget = FindByNameNearest("combattank_target", vecMount, flDist)
+			if(hForceTarget)
 			{
-				for(local hEnt, flDist = COMBATTANK_MAX_RANGE; hEnt = FindByClassnameWithin(hEnt, sClassname, vecOrigin, flDist);)
+				local vecEntCenter = hForceTarget.GetCenter()
+				if(TraceLine(vecEntCenter, vecMount, self) == 1)
+				{
+					hTarget   = hForceTarget
+					vecTarget = vecEntCenter
+					flDist    = (vecEntCenter - vecMount).Length()
+				}
+			}
+			else foreach(sClassname in [ "player", "obj_sentrygun", "obj_dispenser", "obj_teleporter", "tank_boss", "merasmus", "headless_hatman", "eyeball_boss", "tf_zombie" ])
+			{
+				for(local hEnt; hEnt = FindByClassnameWithin(hEnt, sClassname, vecMount, flDist);)
 				{
 					local vecEntCenter = hEnt.GetCenter()
 					local bHasEyes     = "EyePosition" in hEnt
 					local vecEntEye    = bHasEyes ? hEnt.EyePosition() : vecEntCenter
 					local bCenterTrace = TraceLine(vecEntCenter, vecMount, self) == 1
-					local bEyeTrace    = bCenterTrace
-					if(bHasEyes) bEyeTrace = TraceLine(vecEntEye, vecMount, self) == 1
+					local bEyeTrace    = bHasEyes ? TraceLine(vecEntEye, vecMount, self) == 1 : bCenterTrace
 					if
 					(
 						bEyeTrace &&
@@ -222,9 +244,9 @@ TankExt.NewTankType("combattank*", {
 						!TankExt.IsPlayerStealthedOrDisguised(hEnt)
 					)
 					{
-						hTarget = hEnt
+						hTarget   = hEnt
 						vecTarget = bCenterTrace ? vecEntCenter : vecEntEye
-						flDist = (vecEntCenter - vecMount).Length()
+						flDist    = (vecEntCenter - vecMount).Length()
 					}
 				}
 				if(hTarget) break
@@ -334,7 +356,7 @@ TankExt.NewTankType("combattank*", {
 			}
 			self.SetPoseParameter(COMBATTANK_POSE_YAW, angCurrent.y)
 
-			flAngleDist = (hTarget ? angCurrent.Forward().Dot(angGoal.Forward()) : -1)
+			flAngleDot = (hTarget ? angCurrent.Forward().Dot(angGoal.Forward()) : -1)
 		}
 	}
 	function OnDeath()

@@ -63,7 +63,7 @@ TankExt.CombatTankWeapons["minigun"] <- {
 				}
 				if(flTime >= flTimeIdle || iState > 1)
 				{
-					local bEnemyInCone = hTank_scope.flAngleDist >= cos(COMBATTANK_MINIGUN_CONE_RADIUS * DEG2RAD)
+					local bEnemyInCone = hTank_scope.flAngleDot >= cos(COMBATTANK_MINIGUN_CONE_RADIUS * DEG2RAD)
 					if(iState == 1) self.AcceptInput("SetAnimation", "spining", null, null)
 					if(!bEnemyInCone && iState != 2)
 					{

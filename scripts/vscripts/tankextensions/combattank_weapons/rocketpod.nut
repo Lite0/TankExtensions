@@ -46,7 +46,7 @@ TankExt.CombatTankWeapons["rocketpod"] <- {
 		{
 			if(!(self && self.IsValid())) return
 			local flTime       = Time()
-			local bEnemyInCone = hTank_scope.flAngleDist >= cos(COMBATTANK_ROCKETPOD_CONE_RADIUS * DEG2RAD)
+			local bEnemyInCone = hTank_scope.flAngleDot >= cos(COMBATTANK_ROCKETPOD_CONE_RADIUS * DEG2RAD)
 			local bNext        = flTime >= flTimeNext
 			if(bNext && bEnemyInCone && !bReloading && iSlots.len() > 0)
 			{
