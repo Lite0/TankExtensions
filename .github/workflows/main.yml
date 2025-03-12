@@ -6,9 +6,9 @@ name: Sync with test servers
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ DONTRUN ]
+    branches: [ main ]
   pull_request:
-    branches: [ DONTRUN ]
+    branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -41,6 +41,10 @@ jobs:
           for i in "22 pterodactyl@us.potato.tf:/" "22 pterodactyl@sgp.potato.tf:/" "27035 pterodactyl@eu.potato.tf:/" "22 pterodactyl@eu2.potato.tf:/"; do a=( $i ); 
           {
               rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./scripts/vscripts/ ${a[1]}var/tf2testingserver/tf/download/scripts/vscripts/
+              rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./assets/*/models/ ${a[1]}var/tf2testingserver/tf/download/models/
+              rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./assets/*/materials/ ${a[1]}var/tf2testingserver/tf/download/materials/
+              rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./scripts/vscripts/ ${a[1]}var/tf2testingserver/tf/download/scripts/vscripts/
+              rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./scripts/population/mvm_slick_v4a_tankextensions.pop ${a[1]}var/tf2testingserver/tf/download/scripts/population/
           } &
           done
           wait
