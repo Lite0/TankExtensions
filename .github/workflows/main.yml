@@ -43,7 +43,6 @@ jobs:
               rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./scripts/vscripts/ ${a[1]}var/tf2testingserver/tf/download/scripts/vscripts/
               rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./assets/*/models/ ${a[1]}var/tf2testingserver/tf/download/models/
               rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./assets/*/materials/ ${a[1]}var/tf2testingserver/tf/download/materials/
-              rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./scripts/vscripts/ ${a[1]}var/tf2testingserver/tf/download/scripts/vscripts/
               rsync -a -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./scripts/population/mvm_slick_v4a_tankextensions.pop ${a[1]}var/tf2testingserver/tf/download/scripts/population/
           } &
           done
